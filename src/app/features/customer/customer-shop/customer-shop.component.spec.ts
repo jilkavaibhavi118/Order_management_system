@@ -133,6 +133,14 @@ describe('CustomerShopComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
+    const confirmButton = Array.from(
+      fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>
+    ).find((button) => button.textContent?.includes('Confirm Purchase'));
+    expect(confirmButton).toBeTruthy();
+    confirmButton?.click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
     expect(orderServiceMock.createOrder).toHaveBeenCalledWith({
       customerId: '11111111-1111-4111-8111-111111111111',
       warehouseId: 'warehouse-1',

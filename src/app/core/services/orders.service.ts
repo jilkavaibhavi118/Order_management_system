@@ -2,7 +2,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Order, OrderPage, OrderQuery, OrderRequest, OrderStatusRequest } from '../../models/order.models';
+import {
+  Order,
+  OrderPage,
+  OrderQuery,
+  OrderRequest,
+  OrderStatusRequest
+} from '../models/order.model';
 
 @Injectable({
   providedIn: 'root'

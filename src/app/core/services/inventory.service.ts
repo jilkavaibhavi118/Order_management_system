@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiResult } from '../../models/api.model';
+import { ApiResult, PaginatedResponse } from '../models/api.model';
 import {
   InventoryAdjustmentRequest,
   InventoryRecord,
@@ -16,8 +16,7 @@ import {
   Warehouse,
   WarehouseMutationResponse,
   WarehouseRequest
-} from '../../models/inventory.models';
-import { PaginatedResponse } from '../../models/api.model';
+} from '../models/inventory.model';
 
 @Injectable({
   providedIn: 'root'

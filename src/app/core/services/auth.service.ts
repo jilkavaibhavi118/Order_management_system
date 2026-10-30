@@ -9,7 +9,7 @@ import {
   RegisterCredentials,
   RegisterResponse,
   RegisterRequest
-} from '../../models/auth.models';
+} from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root'

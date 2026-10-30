@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -18,7 +17,6 @@ import { OrderService } from '../../../core/services/order.service';
 import { ProductService } from '../../../core/services/product.service';
 import { InventoryRecord, Product } from '../../../core/models/product.model';
 import { environment } from '../../../../environments/environment';
-import { Subscription } from 'rxjs';
 
 interface CategoryOption {
   label: string;
@@ -1395,7 +1393,7 @@ interface CategoryOption {
     `
   ]
 })
-export class CustomerShopComponent implements OnInit, OnDestroy {
+export class CustomerShopComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly productService = inject(ProductService);
   private readonly orderService = inject(OrderService);
@@ -1403,13 +1401,9 @@ export class CustomerShopComponent implements OnInit, OnDestroy {
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly http = inject(HttpClient);
-  private readonly imageSubscriptions: Subscription[] = [];
-  private readonly imageObjectUrls: string[] = [];
   private pendingAction: { type: 'addToCart' | 'buyNow'; productId: string } | null = null;
 
   protected readonly products = signal<Product[]>([]);
-  protected readonly productImageUrls = signal<Record<string, string>>({});
   protected readonly searchTerm = signal('');
   protected readonly selectedCategory = signal('');
   protected readonly loading = signal(true);
@@ -1469,11 +1463,6 @@ export class CustomerShopComponent implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
-  ngOnDestroy(): void {
-    this.imageSubscriptions.forEach(subscription => subscription.unsubscribe());
-    this.imageObjectUrls.forEach(url => URL.revokeObjectURL(url));
-  }
-
   protected getCategoryCount(categoryValue: string): number {
     if (!categoryValue) {
       return this.products().length;
@@ -1484,10 +1473,8 @@ export class CustomerShopComponent implements OnInit, OnDestroy {
   }
 
   protected getProductImageUrl(product: Product): string | null {
-    if (this.productImageUrls()[product.id]) {
-      return this.productImageUrls()[product.id];
-    }
-    return product.imageUrl ? this.resolveProductImageUrl(product.imageUrl) : null;
+    const imageUrl = product.imageUrl?.trim();
+    return imageUrl ? this.resolveProductImageUrl(imageUrl) : null;
   }
 
   private resolveProductImageUrl(imageUrl: string): string {
@@ -1498,22 +1485,6 @@ export class CustomerShopComponent implements OnInit, OnDestroy {
       return `${environment.apiUrl}${imageUrl}`;
     }
     return `${environment.apiUrl}/${imageUrl}`;
-  }
-
-  private loadProductImages(products: Product[]): void {
-    this.productImageUrls.set({});
-    for (const product of products) {
-      if (!product.imageUrl) continue;
-      const imageUrl = this.resolveProductImageUrl(product.imageUrl);
-      const subscription = this.http.get(imageUrl, { responseType: 'blob' }).subscribe({
-        next: blob => {
-          const objectUrl = URL.createObjectURL(blob);
-          this.imageObjectUrls.push(objectUrl);
-          this.productImageUrls.update(urls => ({ ...urls, [product.id]: objectUrl }));
-        }
-      });
-      this.imageSubscriptions.push(subscription);
-    }
   }
 
   protected hideBrokenImage(event: Event): void {
@@ -1533,7 +1504,6 @@ export class CustomerShopComponent implements OnInit, OnDestroy {
         this.products.set(activeProducts);
         this.loading.set(false);
         activeProducts.forEach((product) => this.loadProductStock(product));
-        this.loadProductImages(activeProducts);
       },
       error: () => {
         this.loading.set(false);
