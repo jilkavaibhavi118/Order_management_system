@@ -1,0 +1,18 @@
+{
+  "/api/**": {
+    "target": "https://dismantle-drop-down-scowling.ngrok-free.dev",
+    "secure": true,
+    "changeOrigin": true,
+    "headers": {
+      "ngrok-skip-browser-warning": "true"
+    }
+  },
+  "/uploads/**": {
+    "target": "https://dismantle-drop-down-scowling.ngrok-free.dev",
+    "secure": true,
+    "changeOrigin": true,
+    "headers": {
+      "ngrok-skip-browser-warning": "true"
+    }
+  }
+}

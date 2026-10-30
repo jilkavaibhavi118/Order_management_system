@@ -1,0 +1,201 @@
+<section class="orders-page">
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="header-titles">
+      <span class="section-kicker">Your purchases</span>
+      <h1>Order History</h1>
+      <p>Review your previous orders and their current status.</p>
+    </div>
+
+    <p-button
+      label="Shop More Products"
+      icon="pi pi-arrow-right"
+      iconPos="right"
+      [outlined]="true"
+      routerLink="/shop"
+      styleClass="shop-btn"
+    />
+  </header>
+
+  @if (!loading() && !errorMessage() && orders().length > 0) {
+    <div class="orders-filters" aria-label="Filter order history">
+      <label class="orders-filter-control order-search-control">
+        <i class="pi pi-search" aria-hidden="true"></i>
+        <input
+          type="search"
+          placeholder="Search by order ID"
+          aria-label="Search by order ID"
+          [ngModel]="orderSearch()"
+          (ngModelChange)="orderSearch.set($event)"
+        />
+      </label>
+      <label class="orders-filter-control">
+        <span class="sr-only">Filter by status</span>
+        <select
+          aria-label="Filter by status"
+          [ngModel]="statusFilter()"
+          (ngModelChange)="statusFilter.set($event)"
+        >
+          <option value="">All statuses</option>
+          @for (status of availableStatuses(); track status) {
+            <option [value]="status">{{ status }}</option>
+          }
+        </select>
+      </label>
+      <label class="orders-filter-control date-filter-control">
+        <span class="sr-only">Filter by order date</span>
+        <input
+          type="date"
+          aria-label="Filter by order date"
+          [ngModel]="dateFilter()"
+          (ngModelChange)="dateFilter.set($event)"
+        />
+      </label>
+    </div>
+  }
+
+  @if (loading()) {
+    <!-- Skeleton Loading State -->
+    <div class="orders-grid" aria-label="Loading orders">
+      @for (placeholder of placeholders; track placeholder) {
+        <div class="order-card skeleton-card">
+          <div class="skeleton-top">
+            <p-skeleton width="30%" height="1rem" />
+            <p-skeleton width="20%" height="1.2rem" borderRadius="999px" />
+          </div>
+          <p-skeleton width="75%" height="1.4rem" />
+          <p-skeleton width="45%" height="1rem" />
+          <div class="skeleton-bottom">
+            <p-skeleton width="35%" height="1.5rem" />
+            <p-skeleton width="25%" height="2rem" borderRadius="0.5rem" />
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (errorMessage()) {
+    <!-- Error State -->
+    <div class="state-card error-state">
+      <span class="state-icon error-icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+      <h2>Orders Aren't Available Right Now</h2>
+      <p>{{ errorMessage() }}</p>
+      <p-button label="Try Again" icon="pi pi-refresh" (onClick)="loadOrders()" />
+    </div>
+  } @else if (orders().length === 0) {
+    <!-- Empty Orders State -->
+    <div class="state-card empty-state">
+      <span class="state-icon"><i class="pi pi-receipt" aria-hidden="true"></i></span>
+      <h2>{{ totalCount() > 0 ? 'No Orders On This Page' : 'No Orders Placed Yet' }}</h2>
+      <p>{{ totalCount() > 0 ? 'Try navigating to another page to see your past orders.' : 'You haven’t placed an order yet. Explore our live catalog to find products and checkout instantly.' }}</p>
+      <p-button label="Explore Marketplace" icon="pi pi-arrow-right" iconPos="right" routerLink="/shop" />
+
+      @if (totalPages() > 1) {
+        <nav class="pagination-controls" aria-label="Order pages">
+          <p-button
+            label="Previous"
+            icon="pi pi-arrow-left"
+            [outlined]="true"
+            [disabled]="page() <= 1 || loading()"
+            (onClick)="loadOrders(page() - 1)"
+          />
+          <span class="page-indicator">Page {{ page() }} of {{ totalPages() }}</span>
+          <p-button
+            label="Next"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            [outlined]="true"
+            [disabled]="page() >= totalPages() || loading()"
+            (onClick)="loadOrders(page() + 1)"
+          />
+        </nav>
+      }
+    </div>
+  } @else if (visibleOrders().length === 0) {
+    <div class="state-card empty-state">
+      <span class="state-icon"><i class="pi pi-filter" aria-hidden="true"></i></span>
+      <h2>No Matching Orders</h2>
+      <p>Try changing or clearing the search and filters.</p>
+      <p-button
+        label="Clear filters"
+        icon="pi pi-filter-slash"
+        [outlined]="true"
+        (onClick)="clearFilters()"
+      />
+    </div>
+  } @else {
+    <!-- Orders Grid -->
+    <div class="orders-grid">
+      @for (order of visibleOrders(); track order.id) {
+        <article class="order-card">
+          <!-- Top Row: Reference + Status Pill -->
+          <div class="order-header-row">
+            <div class="order-ref-group">
+              <span class="order-icon-badge">
+                <i class="pi pi-box" aria-hidden="true"></i>
+              </span>
+              <div class="order-id-meta">
+                <span class="order-ref-label">ORDER ID</span>
+                <strong class="order-ref-code">#{{ order.orderNumber || order.id.slice(0, 8).toUpperCase() }}</strong>
+              </div>
+            </div>
+
+            <!-- Status Tag with Custom Severity -->
+            <span class="status-pill status-{{ (order.status || 'pending').toLowerCase() }}">
+              <span class="status-dot"></span>
+              <span>{{ order.status || 'Pending' }}</span>
+            </span>
+          </div>
+
+          <!-- Main Order Info -->
+          <div class="order-body">
+            <h3 class="order-headline" title="{{ order.items?.[0]?.productName || 'Order Items' }}">
+              {{ order.items?.[0]?.productName || 'Order Package' }}
+              @if ((order.items?.length ?? 0) > 1) {
+                <span class="more-items-tag">+{{ (order.items?.length ?? 1) - 1 }} more</span>
+              }
+            </h3>
+
+            <div class="order-date-row">
+              <i class="pi pi-calendar"></i>
+              <span>{{ order.createdAt ? (order.createdAt | date:'mediumDate') : 'Date recorded' }}</span>
+            </div>
+          </div>
+
+          <!-- Footer with Total and CTA -->
+          <div class="order-footer-row">
+            <div class="order-pricing">
+              <span class="pricing-label">{{ order.items?.length || 0 }} {{ order.items?.length === 1 ? 'Product' : 'Products' }}</span>
+              <strong class="order-total-amount">{{ order.total | currency:'INR':'symbol':'1.0-0' }}</strong>
+            </div>
+
+            <a class="view-details-btn" [routerLink]="['/my-orders', order.id]">
+              <span>Track Details</span>
+              <i class="pi pi-arrow-up-right" aria-hidden="true"></i>
+            </a>
+          </div>
+        </article>
+      }
+    </div>
+
+    <!-- Pagination Controls -->
+    @if (totalPages() > 1) {
+      <nav class="pagination-bar" aria-label="Order pages">
+        <p-button
+          label="Previous"
+          icon="pi pi-arrow-left"
+          [outlined]="true"
+          [disabled]="page() <= 1 || loading()"
+          (onClick)="loadOrders(page() - 1)"
+        />
+        <span class="page-indicator">Page <strong>{{ page() }}</strong> of {{ totalPages() }}</span>
+        <p-button
+          label="Next"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          [outlined]="true"
+          [disabled]="page() >= totalPages() || loading()"
+          (onClick)="loadOrders(page() + 1)"
+        />
+      </nav>
+    }
+  }
+</section>

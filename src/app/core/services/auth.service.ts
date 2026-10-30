@@ -30,7 +30,7 @@ export class AuthService {
       .map(part => part.charAt(0).toLocaleUpperCase() + part.slice(1))
       .join(' ');
 
-    this.currentUserName.set(response.data.name || emailName || email);
+    this.currentUserName.set(response.data?.name || response.name || emailName || email);
   }
 
   logout(): void {
@@ -58,12 +58,20 @@ export class AuthService {
     };
 
     return this.sendRequest<LoginResponse>('login', request).pipe(
-      tap(response => this.storeAuth(
-        response.data.token,
-        response.data.userId,
-        credentials.rememberMe,
-        credentials.email
-      ))
+      tap(response => {
+        const token =
+          response.data?.token ??
+          response.data?.accessToken ??
+          response.token ??
+          response.accessToken;
+        if (!token?.trim()) {
+          throw new Error('The login response did not include an access token.');
+        }
+
+        const userId = response.data?.userId ?? response.userId ?? null;
+        const userName = response.data?.name ?? response.name ?? this.nameFromEmail(credentials.email);
+        this.storeAuth(token, userId, credentials.rememberMe, credentials.email, userName);
+      })
     );
   }
 
@@ -88,9 +96,16 @@ export class AuthService {
     );
   }
 
-  private storeAuth(token: string, userId: string, rememberMe: boolean, email: string): void {
+  private storeAuth(
+    token: string,
+    userId: string | null,
+    rememberMe: boolean,
+    email: string,
+    userName: string
+  ): void {
     this.accessToken.set(token);
     this.currentUserId.set(userId);
+    this.currentUserName.set(userName);
     if (typeof window === 'undefined') {
       return;
     }
@@ -98,17 +113,33 @@ export class AuthService {
     const persistentStorage = rememberMe ? window.localStorage : window.sessionStorage;
     const temporaryStorage = rememberMe ? window.sessionStorage : window.localStorage;
     persistentStorage.setItem(this.accessTokenKey, token);
-    persistentStorage.setItem(this.userIdKey, userId);
+    if (userId) {
+      persistentStorage.setItem(this.userIdKey, userId);
+    } else {
+      persistentStorage.removeItem(this.userIdKey);
+    }
     temporaryStorage.removeItem(this.accessTokenKey);
     temporaryStorage.removeItem(this.userIdKey);
 
     // Keep customer-panel authentication compatible with the shared login.
     persistentStorage.setItem('customer-token', token);
-    persistentStorage.setItem('customer-user-id', userId);
-    persistentStorage.setItem('customer-user-name', email.split('@')[0] || email);
+    if (userId) {
+      persistentStorage.setItem('customer-user-id', userId);
+    } else {
+      persistentStorage.removeItem('customer-user-id');
+    }
+    persistentStorage.setItem('customer-user-name', userName || this.nameFromEmail(email));
     temporaryStorage.removeItem('customer-token');
     temporaryStorage.removeItem('customer-user-id');
     temporaryStorage.removeItem('customer-user-name');
+  }
+
+  private nameFromEmail(email: string): string {
+    return email.split('@')[0]
+      .split(/[._-]+/)
+      .filter(Boolean)
+      .map(part => part.charAt(0).toLocaleUpperCase() + part.slice(1))
+      .join(' ') || email;
   }
 
   private readStoredToken(): string | null {

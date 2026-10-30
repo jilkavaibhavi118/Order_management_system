@@ -1,7 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/auth/auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../../../core/services/auth.service';
+
 
 @Component({
   selector: 'app-login',
@@ -84,29 +86,41 @@ export class LoginComponent {
     this.statusMessage.set(null);
 
     const credentials = this.loginForm.getRawValue();
-    this.authService.login(credentials.email, credentials.password, credentials.rememberMe).subscribe({
+    this.authService.login(credentials).subscribe({
       next: (response) => {
         this.isLoading.set(false);
         this.submissionStatus.set('success');
         this.statusMessage.set(response.message ?? 'Login successful.');
 
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-        if (returnUrl?.startsWith('/') && !returnUrl.startsWith('//')) {
-          void this.router.navigateByUrl(returnUrl);
-        } else {
-          void this.router.navigate(['/select-panel']);
-        }
+        const destination = returnUrl?.startsWith('/') && !returnUrl.startsWith('//')
+          ? returnUrl
+          : '/shop';
+        void this.router.navigateByUrl(destination);
       },
       error: (error: unknown) => {
         this.isLoading.set(false);
         this.submissionStatus.set('error');
-        this.statusMessage.set(
-          error instanceof Error && error.message.includes('access token')
-            ? 'The login service did not return an access token.'
-            : 'Unable to sign in. Check your credentials and try again.'
-        );
+        this.statusMessage.set(this.getLoginErrorMessage(error));
       }
     });
+  }
+
+  private getLoginErrorMessage(error: unknown): string {
+    if (error instanceof Error && error.message.includes('access token')) {
+      return 'The login service did not return an access token.';
+    }
+
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 0) {
+        return 'Unable to reach the login service. Check your connection and try again.';
+      }
+      if (error.status === 401) {
+        return 'Email or password is incorrect.';
+      }
+    }
+
+    return 'Unable to sign in. Check your credentials and try again.';
   }
 
   private focusFirstInvalidField(): void {

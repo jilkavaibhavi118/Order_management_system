@@ -31,6 +31,7 @@ describe('CustomerShopComponent', () => {
   };
 
   beforeEach(async () => {
+    window.localStorage.removeItem('customer-cart');
     authenticated = true;
     orderServiceMock = { createOrder: vi.fn(() => of({ id: 'order-1' })) };
     productServiceMock = {

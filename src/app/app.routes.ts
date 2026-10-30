@@ -37,7 +37,17 @@ export const routes: Routes = [
           )
       },
       {
+        path: 'product/:id',
+        loadComponent: () => import('./features/customer/product-details/product-details.component').then(m => m.ProductDetailsComponent)
+      },
+      {
+        path: 'profile',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/customer/customer-profile/customer-profile.component').then(m => m.CustomerProfileComponent)
+      },
+      {
         path: 'cart',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/customer/customer-cart/customer-cart.component').then(
             (module) => module.CustomerCartComponent
@@ -73,14 +83,7 @@ export const routes: Routes = [
         (module) => module.RegisterComponent
       )
   },
-  {
-    path: 'select-panel',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/customer/select-panel/select-panel.component').then(
-        (module) => module.SelectPanelComponent
-      )
-  },
+
   {
     path: 'dashboard',
     canActivate: [authGuard],

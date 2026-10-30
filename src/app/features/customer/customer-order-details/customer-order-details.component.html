@@ -1,0 +1,108 @@
+<section class="order-detail-page">
+  <!-- Back Navigation Link -->
+  <div class="top-nav-bar">
+    <a routerLink="/my-orders" class="back-link">
+      <i class="pi pi-arrow-left" aria-hidden="true"></i>
+      <span>Back to All Orders</span>
+    </a>
+
+    @if (order()) {
+      <button type="button" class="print-receipt-btn" (click)="printReceipt()">
+        <i class="pi pi-print"></i>
+        <span>Print Receipt</span>
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <!-- Skeleton Loading State -->
+    <div class="skeleton-panel">
+      <p-skeleton width="20%" height="1.2rem" />
+      <p-skeleton width="60%" height="2.2rem" />
+      <p-skeleton width="100%" height="8rem" borderRadius="1rem" />
+    </div>
+  } @else if (errorMessage()) {
+    <!-- Error State -->
+    <div class="state-card error-state">
+      <span class="state-icon"><i class="pi pi-exclamation-circle" aria-hidden="true"></i></span>
+      <h2>Unable to Open This Order</h2>
+      <p>{{ errorMessage() }}</p>
+      <p-button label="Return to Orders" icon="pi pi-arrow-left" routerLink="/my-orders" />
+    </div>
+  } @else if (order(); as currentOrder) {
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-titles">
+        <span class="section-kicker">Order details</span>
+        <h1>Order #{{ currentOrder.orderNumber || currentOrder.id.slice(0, 8).toUpperCase() }}</h1>
+        <p>
+          Placed on {{ currentOrder.createdAt ? (currentOrder.createdAt | date:'mediumDate') : 'Recorded date' }}
+        </p>
+      </div>
+
+      <!-- Status Tag -->
+      <span class="status-pill status-{{ (currentOrder.status || 'pending').toLowerCase() }}">
+        <span class="status-dot"></span>
+        <span>{{ currentOrder.status || 'Pending' }}</span>
+      </span>
+    </header>
+
+    <!-- Details Grid: Summary Box + Items Breakdown -->
+    <div class="details-grid-layout">
+      <!-- Summary Box -->
+      <div class="summary-panel">
+        <h3>Order Summary</h3>
+        <div class="summary-divider"></div>
+
+        <div class="meta-field">
+          <span>Order Reference</span>
+          <strong>#{{ currentOrder.orderNumber || currentOrder.id }}</strong>
+        </div>
+
+        <div class="meta-field">
+          <span>Order Date</span>
+          <strong>{{ currentOrder.createdAt ? (currentOrder.createdAt | date:'mediumDate') : '—' }}</strong>
+        </div>
+
+        <div class="meta-field total-meta-field">
+          <span>Order Total</span>
+          <strong class="total-paid-amount">{{ currentOrder.total | currency:'INR':'symbol':'1.0-0' }}</strong>
+        </div>
+      </div>
+
+      <!-- Items Panel -->
+      <div class="items-panel">
+        <h3>Items in This Order ({{ currentOrder.items?.length || 0 }})</h3>
+        <div class="summary-divider"></div>
+
+        @if (currentOrder.items?.length) {
+          <div class="items-list">
+            @for (item of currentOrder.items; track item.productId) {
+              <div class="order-item-row">
+                <div class="item-icon-box">
+                  <i class="pi pi-box" aria-hidden="true"></i>
+                </div>
+
+                <div class="item-title-meta">
+                  <strong>{{ item.productName || item.productSku || 'Product Item' }}</strong>
+                  <span class="item-subline">
+                    Quantity: {{ item.quantity }} &bull; Unit: {{ (item.unitPrice ?? item.price ?? 0) | currency:'INR':'symbol':'1.0-0' }}
+                  </span>
+                </div>
+
+                <div class="item-row-price">
+                  <span class="item-price-caption">Line Total</span>
+                  <strong class="item-price-val">
+                    {{ (item.unitPrice ?? item.price ?? 0) * item.quantity | currency:'INR':'symbol':'1.0-0' }}
+                  </strong>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="no-items-message">No specific item lines were returned for this order.</p>
+        }
+      </div>
+    </div>
+  }
+</section>
