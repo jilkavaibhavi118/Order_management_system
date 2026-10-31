@@ -56,6 +56,11 @@ export class CustomerOrderDetailComponent {
     });
   }
 
+  protected badgeTone(status?: string): 'success' | 'info' | 'warning' | 'danger' | 'neutral' {
+    const severity = this.statusSeverity(status);
+    return severity === 'warn' ? 'warning' : severity === 'secondary' ? 'neutral' : severity;
+  }
+
   protected statusSeverity(status?: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (status?.toLowerCase()) {
       case 'completed':

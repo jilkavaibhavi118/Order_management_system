@@ -11,6 +11,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
+import { AuthShellComponent } from '../auth-shell/auth-shell.component';
 
 interface PasswordRule {
   id: string;
@@ -91,7 +92,7 @@ function evaluatePasswordStrength(password: string): PasswordStrength {
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AuthShellComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -140,6 +141,10 @@ export class RegisterComponent {
       confirmPassword: new FormControl('', {
         nonNullable: true,
         validators: [Validators.required]
+      }),
+      acceptTerms: new FormControl(false, {
+        nonNullable: true,
+        validators: [Validators.requiredTrue]
       })
     },
     {
@@ -164,6 +169,10 @@ export class RegisterComponent {
 
   get passwordCtrl(): FormControl<string> {
     return this.registerForm.controls.password;
+  }
+
+  get acceptTermsCtrl(): FormControl<boolean> {
+    return this.registerForm.controls.acceptTerms;
   }
 
   get confirmPasswordCtrl(): FormControl<string> {

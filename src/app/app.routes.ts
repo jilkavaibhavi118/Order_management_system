@@ -10,7 +10,7 @@ import { authGuard } from './core/auth/auth.guard';
     <main>
       <h1>Admin panel is not available</h1>
       <p>The admin dashboard has not been added to this application yet.</p>
-      <a routerLink="/shop">Continue to the customer shop</a>
+      <button type="button" routerLink="/shop">Continue to the customer shop</button>
     </main>
   `
 })

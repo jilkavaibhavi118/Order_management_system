@@ -66,6 +66,12 @@ export class CustomerShopComponent implements OnInit {
   protected readonly buyConfirmationVisible = signal(false);
   protected readonly buyConfirmationProduct = signal<Product | null>(null);
   protected readonly loadingPlaceholders = [1, 2, 3, 4, 5, 6, 7, 8];
+  protected readonly sortOptions = [
+    { label: 'Sort: Featured', value: 'featured' },
+    { label: 'Price: low to high', value: 'price-asc' },
+    { label: 'Price: high to low', value: 'price-desc' },
+    { label: 'Name: A to Z', value: 'name' }
+  ];
   protected readonly sortOrder = signal<'featured' | 'name' | 'price-asc' | 'price-desc'>('featured');
 
   protected readonly categoryOptions = computed<CategoryOption[]>(() => [

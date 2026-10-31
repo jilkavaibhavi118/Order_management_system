@@ -1,108 +1,89 @@
-<section class="order-detail-page">
-  <!-- Back Navigation Link -->
-  <div class="top-nav-bar">
-    <a routerLink="/my-orders" class="back-link">
+<section class="cx-page order-detail-page">
+  <div class="detail-nav">
+    <button type="button" routerLink="/my-orders" class="cx-btn cx-btn--ghost">
       <i class="pi pi-arrow-left" aria-hidden="true"></i>
-      <span>Back to All Orders</span>
-    </a>
+      <span>Back to all orders</span>
+    </button>
 
     @if (order()) {
-      <button type="button" class="print-receipt-btn" (click)="printReceipt()">
-        <i class="pi pi-print"></i>
-        <span>Print Receipt</span>
+      <button type="button" class="cx-btn cx-btn--secondary" (click)="printReceipt()">
+        <i class="pi pi-print" aria-hidden="true"></i>
+        <span>Print receipt</span>
       </button>
     }
   </div>
 
   @if (loading()) {
-    <!-- Skeleton Loading State -->
-    <div class="skeleton-panel">
+    <div class="cx-panel detail-skeleton" aria-busy="true" aria-label="Loading order">
       <p-skeleton width="20%" height="1.2rem" />
       <p-skeleton width="60%" height="2.2rem" />
-      <p-skeleton width="100%" height="8rem" borderRadius="1rem" />
+      <p-skeleton width="100%" height="8rem" borderRadius="12px" />
     </div>
   } @else if (errorMessage()) {
-    <!-- Error State -->
-    <div class="state-card error-state">
-      <span class="state-icon"><i class="pi pi-exclamation-circle" aria-hidden="true"></i></span>
-      <h2>Unable to Open This Order</h2>
+    <div class="cx-state cx-state--error" role="alert">
+      <span class="cx-state__icon"><i class="pi pi-exclamation-circle" aria-hidden="true"></i></span>
+      <h2>Unable to open this order</h2>
       <p>{{ errorMessage() }}</p>
-      <p-button label="Return to Orders" icon="pi pi-arrow-left" routerLink="/my-orders" />
+      <p-button label="Return to orders" icon="pi pi-arrow-left" routerLink="/my-orders" />
     </div>
   } @else if (order(); as currentOrder) {
-    <!-- Header -->
-    <header class="page-header">
-      <div class="header-titles">
-        <span class="section-kicker">Order details</span>
+    <header class="cx-page-header">
+      <div>
         <h1>Order #{{ currentOrder.orderNumber || currentOrder.id.slice(0, 8).toUpperCase() }}</h1>
-        <p>
-          Placed on {{ currentOrder.createdAt ? (currentOrder.createdAt | date:'mediumDate') : 'Recorded date' }}
-        </p>
+        <p>Placed on {{ currentOrder.createdAt ? (currentOrder.createdAt | date:'mediumDate') : 'Recorded date' }}</p>
       </div>
 
-      <!-- Status Tag -->
-      <span class="status-pill status-{{ (currentOrder.status || 'pending').toLowerCase() }}">
-        <span class="status-dot"></span>
-        <span>{{ currentOrder.status || 'Pending' }}</span>
-      </span>
+      <span class="cx-badge cx-badge--{{ badgeTone(currentOrder.status) }}">{{ currentOrder.status || 'Pending' }}</span>
     </header>
 
-    <!-- Details Grid: Summary Box + Items Breakdown -->
-    <div class="details-grid-layout">
-      <!-- Summary Box -->
-      <div class="summary-panel">
-        <h3>Order Summary</h3>
-        <div class="summary-divider"></div>
-
-        <div class="meta-field">
-          <span>Order Reference</span>
-          <strong>#{{ currentOrder.orderNumber || currentOrder.id }}</strong>
-        </div>
-
-        <div class="meta-field">
-          <span>Order Date</span>
-          <strong>{{ currentOrder.createdAt ? (currentOrder.createdAt | date:'mediumDate') : '—' }}</strong>
-        </div>
-
-        <div class="meta-field total-meta-field">
-          <span>Order Total</span>
-          <strong class="total-paid-amount">{{ currentOrder.total | currency:'INR':'symbol':'1.0-0' }}</strong>
-        </div>
-      </div>
-
-      <!-- Items Panel -->
-      <div class="items-panel">
-        <h3>Items in This Order ({{ currentOrder.items?.length || 0 }})</h3>
-        <div class="summary-divider"></div>
+    <div class="detail-layout">
+      <section class="cx-panel detail-items" aria-labelledby="items-title">
+        <h2 id="items-title">Items in this order ({{ currentOrder.items?.length || 0 }})</h2>
 
         @if (currentOrder.items?.length) {
-          <div class="items-list">
+          <ul class="detail-list">
             @for (item of currentOrder.items; track item.productId) {
-              <div class="order-item-row">
-                <div class="item-icon-box">
-                  <i class="pi pi-box" aria-hidden="true"></i>
-                </div>
-
-                <div class="item-title-meta">
+              <li class="detail-row">
+                <span class="detail-row__icon"><i class="pi pi-box" aria-hidden="true"></i></span>
+                <div class="detail-row__info">
                   <strong>{{ item.productName || item.productSku || 'Product Item' }}</strong>
-                  <span class="item-subline">
-                    Quantity: {{ item.quantity }} &bull; Unit: {{ (item.unitPrice ?? item.price ?? 0) | currency:'INR':'symbol':'1.0-0' }}
+                  <span>
+                    Qty {{ item.quantity }} &middot; {{ (item.unitPrice ?? item.price ?? 0) | currency:'INR':'symbol':'1.0-0' }} each
                   </span>
                 </div>
-
-                <div class="item-row-price">
-                  <span class="item-price-caption">Line Total</span>
-                  <strong class="item-price-val">
-                    {{ (item.unitPrice ?? item.price ?? 0) * item.quantity | currency:'INR':'symbol':'1.0-0' }}
-                  </strong>
+                <div class="detail-row__total">
+                  <span>Line total</span>
+                  <strong>{{ (item.unitPrice ?? item.price ?? 0) * item.quantity | currency:'INR':'symbol':'1.0-0' }}</strong>
                 </div>
-              </div>
+              </li>
             }
-          </div>
+          </ul>
         } @else {
-          <p class="no-items-message">No specific item lines were returned for this order.</p>
+          <p class="detail-empty">No specific item lines were returned for this order.</p>
         }
-      </div>
+      </section>
+
+      <aside class="cx-panel detail-summary" aria-labelledby="summary-title">
+        <h2 id="summary-title">Order summary</h2>
+        <dl>
+          <div>
+            <dt>Order reference</dt>
+            <dd>#{{ currentOrder.orderNumber || currentOrder.id }}</dd>
+          </div>
+          <div>
+            <dt>Order date</dt>
+            <dd>{{ currentOrder.createdAt ? (currentOrder.createdAt | date:'mediumDate') : '—' }}</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd>{{ currentOrder.status || 'Pending' }}</dd>
+          </div>
+        </dl>
+        <div class="detail-summary__total">
+          <span>Order total</span>
+          <strong>{{ currentOrder.total | currency:'INR':'symbol':'1.0-0' }}</strong>
+        </div>
+      </aside>
     </div>
   }
 </section>

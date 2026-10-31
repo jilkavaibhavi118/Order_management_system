@@ -1,190 +1,189 @@
-<main class="detail-page-shell">
-  <div class="bg-orb orb-one"></div>
-  <div class="bg-orb orb-two"></div>
-  <div class="bg-orb orb-three"></div>
+<div class="cx-page detail-page">
+  @if (loading()) {
+    <section class="cx-state" role="status" aria-live="polite">
+      <span class="cx-state__icon"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i></span>
+      <h2>Loading product</h2>
+    </section>
+  } @else if (error()) {
+    <section class="cx-state cx-state--error" role="alert">
+      <span class="cx-state__icon"><i class="pi pi-exclamation-circle" aria-hidden="true"></i></span>
+      <h2>Product unavailable</h2>
+      <p>{{ error() }}</p>
+      <button type="button" routerLink="/shop" class="cx-btn cx-btn--secondary">Back to catalog</button>
+    </section>
+  } @else if (product(); as item) {
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <button type="button" routerLink="/shop">Shop catalog</button>
+      <span aria-hidden="true">/</span>
+      <span>{{ item.category }}</span>
+      <span aria-hidden="true">/</span>
+      <span class="current" aria-current="page">{{ item.name }}</span>
+    </nav>
 
-  <div class="detail-page">
-    <div class="content-panel">
-      @if (loading()) {
-        <section class="state-card glass-card">
-          <i class="pi pi-spin pi-spinner"></i>
-          <span>Loading product...</span>
-        </section>
-      } @else if (error()) {
-        <section class="state-card glass-card">
-          <i class="pi pi-exclamation-circle"></i>
-          <span>{{ error() }}</span>
-        </section>
-      } @else if (product(); as item) {
-        <div class="product-stage">
-          <div class="breadcrumb-bar">
-            <a routerLink="/shop">Shop Catalog</a>
-            <i class="pi pi-angle-right"></i>
-            <span>{{ item.category }}</span>
-            <i class="pi pi-angle-right"></i>
-            <span class="current">{{ item.name }}</span>
-          </div>
-
-          <section class="product-layout glass-card">
-            <div class="gallery-panel">
-              <div class="main-image-box">
-                @if (imageUrl(item); as src) {
-                  <img [src]="src" [alt]="item.name" (error)="hideBrokenImage($event)" />
-                } @else {
-                  <div class="placeholder">
-                    <i class="pi pi-image" aria-hidden="true"></i>
-                    <span>No product image available</span>
-                  </div>
-                }
-              </div>
+    <section class="product-layout cx-panel">
+      <div class="gallery-panel">
+        <div class="main-image-box">
+          @if (imageUrl(item); as src) {
+            <img [src]="src" [alt]="item.name" (error)="hideBrokenImage($event)" />
+          } @else {
+            <div class="placeholder">
+              <i class="pi pi-image" aria-hidden="true"></i>
+              <span>No product image available</span>
             </div>
-
-            <article class="details-panel">
-              <div class="detail-head">
-                <span class="eyebrow">{{ item.category }}</span>
-                <span class="product-status" [class.inactive]="!item.isActive">
-                  {{ item.isActive ? 'Active' : 'Inactive' }}
-                </span>
-              </div>
-
-              <h1>{{ item.name }}</h1>
-
-              <div class="sku-bar">
-                <span>SKU: {{ item.sku }}</span>
-                @if (item.supplierId) {
-                  <span class="supplier">Supplier ID: {{ item.supplierId }}</span>
-                }
-              </div>
-
-              <div class="availability-row">
-                <i class="pi pi-box" aria-hidden="true"></i>
-                @if (stockLoading()) {
-                  <span>Loading inventory...</span>
-                } @else if (stockError()) {
-                  <span>Inventory information is unavailable.</span>
-                } @else {
-                  <span>{{ stock() }} in stock</span>
-                  @if (inventory()?.isLowStock) {
-                    <span class="low-stock-label">Low stock</span>
-                  }
-                }
-              </div>
-
-              <div class="price-row">
-                @if (item.sellPrice != null) {
-                  <div class="current-price">{{ item.sellPrice | currency:'INR':'symbol':'1.2-2' }}</div>
-                } @else {
-                  <div class="current-price price-unavailable">Price unavailable</div>
-                }
-              </div>
-
-              @if (item.description?.trim()) {
-                <p class="description">{{ item.description }}</p>
-              } @else {
-                <p class="description empty-description">No description provided.</p>
-              }
-
-              <div class="quantity-block">
-                <span>Quantity</span>
-                <div class="qty-box">
-                  <button type="button" (click)="decrementQty()" [disabled]="quantity() <= 1" aria-label="Decrease quantity"><i class="pi pi-minus"></i></button>
-                  <span>{{ quantity() }}</span>
-                  <button type="button" (click)="incrementQty()" [disabled]="!canIncrementQty()" aria-label="Increase quantity"><i class="pi pi-plus"></i></button>
-                </div>
-              </div>
-
-              <div class="cta-row">
-                <p-button label="Add to cart" icon="pi pi-shopping-cart" styleClass="primary-action" [disabled]="!canBuy()" (onClick)="addToCart()" />
-                <p-button label="Buy now" icon="pi pi-bolt" [outlined]="true" styleClass="secondary-action" [disabled]="!canBuy()" (onClick)="buyNow()" />
-              </div>
-            </article>
-          </section>
-
-          <section class="info-panel glass-card">
-            <div class="tabs-row">
-              <button type="button" class="tab" [class.active]="selectedTab() === 'description'" (click)="selectedTab.set('description')">
-                Description
-              </button>
-              <button type="button" class="tab" [class.active]="selectedTab() === 'inventory'" (click)="selectedTab.set('inventory')">
-                Inventory
-              </button>
-            </div>
-
-            <div class="tab-content">
-              @if (selectedTab() === 'description') {
-                <div class="description-content">
-                  <p>{{ item.description?.trim() || 'No description provided.' }}</p>
-                  <dl class="product-meta">
-                    <div><dt>Category</dt><dd>{{ item.category }}</dd></div>
-                    <div><dt>SKU</dt><dd>{{ item.sku }}</dd></div>
-                    @if (item.supplierId) {
-                      <div><dt>Supplier ID</dt><dd>{{ item.supplierId }}</dd></div>
-                    }
-                    @if (item.minStock != null) {
-                      <div><dt>Minimum stock</dt><dd>{{ item.minStock }}</dd></div>
-                    }
-                  </dl>
-                </div>
-              } @else {
-                @if (stockLoading()) {
-                  <p>Loading inventory...</p>
-                } @else if (stockError()) {
-                  <p class="inline-error">Inventory information is unavailable.</p>
-                } @else if (inventory()?.warehouses?.length) {
-                  <div class="warehouse-list">
-                    @for (warehouse of inventory()!.warehouses; track warehouse.warehouseId) {
-                      <div class="warehouse-row">
-                        <span>Warehouse {{ warehouse.warehouseId }}</span>
-                        <strong>{{ warehouseQuantity(warehouse) }}</strong>
-                      </div>
-                    }
-                  </div>
-                } @else {
-                  <p>No warehouse inventory was returned.</p>
-                }
-              }
-            </div>
-          </section>
-
-          @if (relatedProducts().length || relatedLoading() || relatedError()) {
-          <section class="related-section">
-            <div class="related-header">
-              <h2>Related Products</h2>
-              <a routerLink="/shop" class="view-all-button">View All <i class="pi pi-arrow-right"></i></a>
-            </div>
-
-            @if (relatedLoading()) {
-              <p class="related-state">Loading products...</p>
-            } @else if (relatedError()) {
-              <p class="related-state inline-error">{{ relatedError() }}</p>
-            } @else {
-              <div class="related-grid">
-              @for (rel of relatedProducts(); track rel.id) {
-                <article class="related-card">
-                  <div class="related-art">
-                    @if (imageUrl(rel); as image) {
-                      <img [src]="image" [alt]="rel.name" (error)="hideBrokenImage($event)" />
-                    } @else {
-                      <span>{{ rel.name }}</span>
-                    }
-                  </div>
-                  <div class="related-info">
-                    <h3>{{ rel.name }}</h3>
-                    <div class="related-row">
-                      <span>{{ rel.category }}</span>
-                      @if (rel.sellPrice != null) {
-                        <strong>{{ rel.sellPrice | currency:'INR':'symbol':'1.2-2' }}</strong>
-                      }
-                    </div>
-                  </div>
-                </article>
-              }
-              </div>
-            }
-          </section>
           }
         </div>
-      }
-    </div>
-  </div>
-</main>
+      </div>
+
+      <article class="details-panel">
+        <div class="detail-head">
+          <span class="cx-badge cx-badge--info">{{ item.category }}</span>
+          <span class="cx-badge" [class.cx-badge--success]="item.isActive" [class.cx-badge--neutral]="!item.isActive">
+            {{ item.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+
+        <h1>{{ item.name }}</h1>
+
+        <div class="sku-bar">
+          <span>SKU {{ item.sku }}</span>
+          @if (item.supplierId) {
+            <span class="supplier">Supplier ID {{ item.supplierId }}</span>
+          }
+        </div>
+
+        <div class="availability-row" aria-live="polite">
+          @if (stockLoading()) {
+            <span class="cx-badge cx-badge--neutral">Checking inventory…</span>
+          } @else if (stockError()) {
+            <span class="cx-badge cx-badge--neutral">Inventory information is unavailable</span>
+          } @else {
+            <span
+              class="cx-badge"
+              [class.cx-badge--success]="(stock() ?? 0) > 0 && !inventory()?.isLowStock"
+              [class.cx-badge--warning]="(stock() ?? 0) > 0 && inventory()?.isLowStock"
+              [class.cx-badge--danger]="(stock() ?? 0) === 0"
+            >
+              <i class="pi pi-box" aria-hidden="true"></i>
+              {{ stock() }} in stock
+            </span>
+            @if (inventory()?.isLowStock && (stock() ?? 0) > 0) {
+              <span class="low-stock-label">Low stock</span>
+            }
+          }
+        </div>
+
+        <div class="price-row">
+          @if (item.sellPrice != null) {
+            <div class="current-price">{{ item.sellPrice | currency:'INR':'symbol':'1.2-2' }}</div>
+          } @else {
+            <div class="current-price price-unavailable">Price unavailable</div>
+          }
+        </div>
+
+        @if (item.description?.trim()) {
+          <p class="description">{{ item.description }}</p>
+        } @else {
+          <p class="description empty-description">No description provided.</p>
+        }
+
+        <div class="quantity-block">
+          <span id="qty-label">Quantity</span>
+          <div class="cx-qty" role="group" aria-labelledby="qty-label">
+            <button type="button" (click)="decrementQty()" [disabled]="quantity() <= 1" aria-label="Decrease quantity"><i class="pi pi-minus" aria-hidden="true"></i></button>
+            <span aria-live="polite">{{ quantity() }}</span>
+            <button type="button" (click)="incrementQty()" [disabled]="!canIncrementQty()" aria-label="Increase quantity"><i class="pi pi-plus" aria-hidden="true"></i></button>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <p-button label="Add to cart" icon="pi pi-shopping-cart" styleClass="primary-action" [disabled]="!canBuy()" (onClick)="addToCart()" />
+          <p-button label="Buy now" icon="pi pi-bolt" [outlined]="true" styleClass="secondary-action" [disabled]="!canBuy()" (onClick)="buyNow()" />
+        </div>
+      </article>
+    </section>
+
+    <section class="info-panel cx-panel">
+      <div class="tabs-row" role="tablist">
+        <button type="button" role="tab" class="tab" [class.active]="selectedTab() === 'description'" [attr.aria-selected]="selectedTab() === 'description'" (click)="selectedTab.set('description')">
+          Details
+        </button>
+        <button type="button" role="tab" class="tab" [class.active]="selectedTab() === 'inventory'" [attr.aria-selected]="selectedTab() === 'inventory'" (click)="selectedTab.set('inventory')">
+          Inventory
+        </button>
+      </div>
+
+      <div class="tab-content" role="tabpanel">
+        @if (selectedTab() === 'description') {
+          <div class="description-content">
+            <p>{{ item.description?.trim() || 'No description provided.' }}</p>
+            <dl class="product-meta">
+              <div><dt>Category</dt><dd>{{ item.category }}</dd></div>
+              <div><dt>SKU</dt><dd>{{ item.sku }}</dd></div>
+              @if (item.supplierId) {
+                <div><dt>Supplier ID</dt><dd>{{ item.supplierId }}</dd></div>
+              }
+              @if (item.minStock != null) {
+                <div><dt>Minimum stock</dt><dd>{{ item.minStock }}</dd></div>
+              }
+            </dl>
+          </div>
+        } @else {
+          @if (stockLoading()) {
+            <p class="muted">Loading inventory…</p>
+          } @else if (stockError()) {
+            <p class="inline-error">Inventory information is unavailable.</p>
+          } @else if (inventory()?.warehouses?.length) {
+            <div class="warehouse-list">
+              @for (warehouse of inventory()!.warehouses; track warehouse.warehouseId) {
+                <div class="warehouse-row">
+                  <span>Warehouse {{ warehouse.warehouseId }}</span>
+                  <strong>{{ warehouseQuantity(warehouse) }}</strong>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="muted">No warehouse inventory was returned.</p>
+          }
+        }
+      </div>
+    </section>
+
+    @if (relatedProducts().length || relatedLoading() || relatedError()) {
+      <section class="related-section">
+        <div class="related-header">
+          <h2>Related products</h2>
+          <button type="button" routerLink="/shop" class="cx-btn cx-btn--ghost">View all <i class="pi pi-arrow-right" aria-hidden="true"></i></button>
+        </div>
+
+        @if (relatedLoading()) {
+          <p class="muted">Loading products…</p>
+        } @else if (relatedError()) {
+          <p class="inline-error">{{ relatedError() }}</p>
+        } @else {
+          <div class="related-grid">
+            @for (rel of relatedProducts(); track rel.id) {
+              <article class="related-card">
+                <div class="related-art">
+                  @if (imageUrl(rel); as image) {
+                    <img [src]="image" [alt]="rel.name" loading="lazy" (error)="hideBrokenImage($event)" />
+                  } @else {
+                    <span>{{ rel.name }}</span>
+                  }
+                </div>
+                <div class="related-info">
+                  <h3>{{ rel.name }}</h3>
+                  <div class="related-row">
+                    <span>{{ rel.category }}</span>
+                    @if (rel.sellPrice != null) {
+                      <strong>{{ rel.sellPrice | currency:'INR':'symbol':'1.2-2' }}</strong>
+                    }
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+</div>

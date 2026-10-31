@@ -13,17 +13,17 @@ import { ngrokInterceptor } from './core/interceptors/ngrok-interceptor';
 const OrderFlowPreset = definePreset(Aura, {
   semantic: {
     primary: {
-      50: '#fff1f4',
-      100: '#ffe1e8',
-      200: '#ffc3d1',
-      300: '#ff9ab3',
-      400: '#ff7093',
-      500: '#ff416c',
-      600: '#e6335d',
-      700: '#c9274d',
-      800: '#a91f42',
-      900: '#861b38',
-      950: '#4e0b1c'
+      50: '#EAF0FD',
+      100: '#D6E1FB',
+      200: '#B3C7F9',
+      300: '#8AA8F5',
+      400: '#5A81EE',
+      500: '#2457E6',
+      600: '#1948C8',
+      700: '#163DA8',
+      800: '#142F82',
+      900: '#122865',
+      950: '#0B1A42'
     }
   }
 });

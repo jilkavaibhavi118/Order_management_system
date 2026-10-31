@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { DatePickerModule } from 'primeng/datepicker';
+import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -13,7 +15,7 @@ import { OrderService } from '../../../core/services/order.service';
 @Component({
   selector: 'app-customer-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ButtonModule, CardModule, SkeletonModule, TagModule],
+  imports: [CommonModule, FormsModule, RouterLink, ButtonModule, CardModule, DatePickerModule, SelectModule, SkeletonModule, TagModule],
   templateUrl: './customer-orders.component.html',
   styleUrl: './customer-orders.component.scss'
 })
@@ -29,6 +31,15 @@ export class CustomerOrdersComponent {
     [...new Set(this.orders().map((order) => order.status).filter((status): status is string => !!status))]
       .sort((a, b) => a.localeCompare(b))
   );
+  protected readonly today = new Date();
+  protected readonly statusOptions = computed(() => [
+    { label: 'All statuses', value: '' },
+    ...this.availableStatuses().map((status) => ({ label: status, value: status }))
+  ]);
+  protected readonly dateValue = computed(() => {
+    const value = this.dateFilter();
+    return value ? new Date(`${value}T00:00:00`) : null;
+  });
   protected readonly visibleOrders = computed(() => {
     const query = this.orderSearch().trim().toLowerCase();
     const status = this.statusFilter().toLowerCase();
@@ -85,10 +96,25 @@ export class CustomerOrdersComponent {
     });
   }
 
+  protected setDate(value: Date | null): void {
+    if (!value) {
+      this.dateFilter.set('');
+      return;
+    }
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    this.dateFilter.set(`${value.getFullYear()}-${month}-${day}`);
+  }
+
   protected clearFilters(): void {
     this.orderSearch.set('');
     this.statusFilter.set('');
     this.dateFilter.set('');
+  }
+
+  protected badgeTone(status?: string): 'success' | 'info' | 'warning' | 'danger' | 'neutral' {
+    const severity = this.statusSeverity(status);
+    return severity === 'warn' ? 'warning' : severity === 'secondary' ? 'neutral' : severity;
   }
 
   protected statusSeverity(status?: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {

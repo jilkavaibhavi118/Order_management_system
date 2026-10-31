@@ -1,26 +1,60 @@
-/* Login Component Specific Styles */
-.form-utilities-row {
+/* Page-specific styles; shared auth form styles live in styles/auth.scss */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.modal-dialog {
+  width: 100%;
+  max-width: 420px;
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--cx-radius-panel);
+  background: var(--color-surface);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+}
+
+.modal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: -2px;
-}
+  gap: 1rem;
 
-.forgot-password-link {
-  font-size: var(--font-size-sm);
-  color: var(--color-primary);
-  font-weight: var(--font-weight-medium);
-
-  &:hover {
-    color: var(--color-primary-hover);
-    text-decoration: underline;
+  h2 {
+    margin: 0;
+    font-size: 1.125rem;
+    color: var(--color-heading);
   }
 }
 
-@media (max-width: 480px) {
-  .form-utilities-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-3);
-  }
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--cx-radius);
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+
+  &:hover { background: var(--color-surface-muted); color: var(--color-heading); }
+  &:focus-visible { outline: 3px solid var(--color-primary-ring); }
+}
+
+.modal-text {
+  margin: 0.75rem 0 1.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-body);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
 }

@@ -130,6 +130,13 @@ export class AuthService {
     return !!this.getAccessToken();
   }
 
+  /** Re-read the stored session so the UI reflects a login/logout done through another service. */
+  refreshFromStorage(): void {
+    this.currentUserName.set(this.readStoredUserName());
+    this.currentUserEmail.set(this.readStoredUserEmail());
+    this.syncAuthState();
+  }
+
   private syncAuthState(): void {
     this.isAuthenticatedState.set(this.isAuthenticated());
   }

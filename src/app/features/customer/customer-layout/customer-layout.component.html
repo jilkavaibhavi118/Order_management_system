@@ -1,120 +1,86 @@
 <div class="customer-shell">
-  <header class="customer-header">
-    <div class="header-inner">
-      <!-- Brand Logo -->
-      <a class="brand-wrap" routerLink="/shop" aria-label="OrderFlow home">
-        <span class="brand-mark">
-          <i class="pi pi-box" aria-hidden="true"></i>
-        </span>
-        <div class="brand-titles">
-          <span class="brand-name">OrderFlow</span>
-          <span class="brand-badge">MARKETPLACE</span>
-        </div>
-      </a>
+  <header class="cx-header">
+    <div class="cx-header__inner">
+      <button type="button" class="cx-brand" routerLink="/shop" aria-label="OrderFlow home">
+        <span class="cx-brand__mark"><i class="pi pi-box" aria-hidden="true"></i></span>
+        <span class="cx-brand__name">OrderFlow</span>
+      </button>
 
-      <!-- Navigation Links -->
-      <nav class="customer-nav" aria-label="Customer navigation">
-        <a
-          routerLink="/shop"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: true }"
-          aria-label="Shop Catalog"
-        >
+      <nav class="cx-nav" aria-label="Customer navigation">
+        <button type="button" routerLink="/shop" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
           <i class="pi pi-th-large" aria-hidden="true"></i>
-          <span class="nav-label">Shop Catalog</span>
-        </a>
-        <a routerLink="/cart" routerLinkActive="active" class="cart-link" aria-label="My Cart">
-          <i class="pi pi-shopping-bag" aria-hidden="true"></i>
-          <span class="nav-label">My Cart</span>
+          <span>Shop</span>
+        </button>
+        <button type="button" routerLink="/cart" routerLinkActive="is-active">
+          <i class="pi pi-shopping-cart" aria-hidden="true"></i>
+          <span>Cart</span>
           @if (cartCount() > 0) {
-            <span class="cart-badge" aria-label="{{ cartCount() }} items in cart">{{ cartCount() }}</span>
+            <span class="cx-nav__badge" [attr.aria-label]="cartCount() + ' items in cart'">{{ cartCount() }}</span>
           }
-        </a>
-        <a routerLink="/my-orders" routerLinkActive="active" aria-label="Order History">
+        </button>
+        <button type="button" routerLink="/my-orders" routerLinkActive="is-active">
           <i class="pi pi-receipt" aria-hidden="true"></i>
-          <span class="nav-label">Order History</span>
-        </a>
+          <span>My orders</span>
+        </button>
       </nav>
 
-      <!-- User Profile & Action Menu -->
-      <div class="header-actions">
+      <div class="cx-header__actions">
         @if (isAuthenticated()) {
           <button
             #accountButton
-            pButton
             type="button"
-            class="account-button"
+            class="cx-account"
             aria-label="Open account menu"
             aria-haspopup="true"
-            [text]="true"
-            [rounded]="true"
             (click)="accountPopover.toggle($event, accountButton)"
           >
-            <span class="account-avatar">{{ accountInitial() }}</span>
-            <span class="account-meta">
-              <span class="account-name">{{ accountName() }}</span>
-              <span class="account-role">Customer</span>
-            </span>
-            <i class="pi pi-chevron-down account-chevron" aria-hidden="true"></i>
+            <span class="cx-avatar">{{ accountInitial() }}</span>
+            <span class="cx-account__name">{{ accountName() }}</span>
+            <i class="pi pi-chevron-down" aria-hidden="true"></i>
           </button>
         } @else {
-          <a pButton routerLink="/login" class="header-login-button" [outlined]="true" aria-label="Sign in">
-            <i class="pi pi-sign-in" pButtonIcon aria-hidden="true"></i>
-            <span pButtonLabel>Sign in</span>
-          </a>
-          <a pButton routerLink="/register" class="header-register-button" aria-label="Create account">
-            <i class="pi pi-user-plus" pButtonIcon aria-hidden="true"></i>
-            <span pButtonLabel>Create account</span>
-          </a>
+          <button type="button" routerLink="/login" class="cx-btn cx-btn--secondary">Sign in</button>
+          <button type="button" routerLink="/register" class="cx-btn cx-btn--primary">Create account</button>
         }
       </div>
     </div>
   </header>
 
-  <main class="customer-main">
+  <main class="cx-main">
     <router-outlet></router-outlet>
   </main>
 
+  <footer class="cx-footer">
+    <div class="cx-footer__inner">
+      <span>&copy; {{ year }} OrderFlow</span>
+      <span>Secure checkout &middot; Live stock availability</span>
+    </div>
+  </footer>
+
   <p-toast position="top-right" />
 
-  <p-popover #accountPopover styleClass="modern-account-popover">
+  <p-popover #accountPopover styleClass="cx-account-popover">
     @if (isAuthenticated()) {
-      <div class="account-popover-content">
-        <div class="popover-header">
-          <span class="popover-avatar">{{ accountInitial() }}</span>
-          <div class="popover-user-details">
+      <div class="cx-menu">
+        <div class="cx-menu__head">
+          <span class="cx-avatar">{{ accountInitial() }}</span>
+          <div>
             <strong>{{ accountName() }}</strong>
-            <span class="badge-customer">Customer account</span>
+            <span>Customer account</span>
           </div>
         </div>
-
-        <div class="popover-divider"></div>
-
-        <div class="popover-actions">
-          <a routerLink="/profile" (click)="accountPopover.hide()" class="popover-item">
-            <i class="pi pi-user" aria-hidden="true"></i>
-            <span>My Profile</span>
-          </a>
-          <a routerLink="/my-orders" (click)="accountPopover.hide()" class="popover-item">
-            <i class="pi pi-receipt" aria-hidden="true"></i>
-            <span>View All Past Orders</span>
-          </a>
-          <a routerLink="/shop" (click)="accountPopover.hide()" class="popover-item">
-            <i class="pi pi-shopping-bag" aria-hidden="true"></i>
-            <span>Continue Shopping</span>
-          </a>
-        </div>
-
-        <div class="popover-divider"></div>
-
-        <p-button
-          label="Sign Out"
-          icon="pi pi-sign-out"
-          severity="danger"
-          [outlined]="true"
-          styleClass="popover-logout-btn"
-          (onClick)="logout(accountPopover)"
-        />
+        <button type="button" routerLink="/profile" (click)="accountPopover.hide()" class="cx-menu__item">
+          <i class="pi pi-user" aria-hidden="true"></i> My profile
+        </button>
+        <button type="button" routerLink="/my-orders" (click)="accountPopover.hide()" class="cx-menu__item">
+          <i class="pi pi-receipt" aria-hidden="true"></i> My orders
+        </button>
+        <button type="button" routerLink="/shop" (click)="accountPopover.hide()" class="cx-menu__item">
+          <i class="pi pi-th-large" aria-hidden="true"></i> Continue shopping
+        </button>
+        <button type="button" class="cx-menu__item cx-menu__item--danger" (click)="logout(accountPopover)">
+          <i class="pi pi-sign-out" aria-hidden="true"></i> Sign out
+        </button>
       </div>
     }
   </p-popover>

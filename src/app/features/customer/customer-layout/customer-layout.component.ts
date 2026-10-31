@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { Popover, PopoverModule } from 'primeng/popover';
 import { ToastModule } from 'primeng/toast';
@@ -18,6 +20,15 @@ export class CustomerLayoutComponent {
   private readonly authService = inject(AuthService);
   private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
+
+  protected readonly year = new Date().getFullYear();
+
+  constructor() {
+    this.authService.refreshFromStorage();
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd), takeUntilDestroyed())
+      .subscribe(() => this.authService.refreshFromStorage());
+  }
 
   protected readonly cartCount = computed(() => this.cartService.totalItems);
   protected readonly isAuthenticated = computed(() => this.authService.isAuthenticatedState());

@@ -1,141 +1,141 @@
-<section class="shop-page">
-  <!-- Modern Hero Section -->
-  <header class="shop-hero">
-    <div class="hero-content">
-      <h1>Discover <span class="gradient-text">Products</span></h1>
-      <p>Explore a wide range of high-quality electronics and accessories from trusted suppliers.</p>
+<section class="cx-page shop-page">
+  <header class="cx-page-header">
+    <div>
+      <h1>Shop catalog</h1>
+      <p>Electronics and accessories from verified suppliers.</p>
     </div>
+    @if (!loading() && !errorMessage()) {
+      <span class="result-count" aria-live="polite">
+        Showing {{ filteredProducts().length }} of {{ products().length }} products
+      </span>
+    }
   </header>
 
-  <!-- Catalog Controls & Filters -->
-  <section class="catalog-section" aria-labelledby="catalog-title">
-    <!-- Filter Bar with Search and Dropdown -->
-    <div class="catalog-toolbar">
-      <label class="search-control">
-        <i class="pi pi-search search-icon" aria-hidden="true"></i>
-        <input
-          pInputText
-          type="search"
-          [ngModel]="searchTerm()"
-          (ngModelChange)="searchTerm.set($event)"
-          placeholder="Search products by name or SKU..."
-          autocomplete="off"
-        />
-        @if (searchTerm()) {
-          <button type="button" class="clear-search-btn" aria-label="Clear search" (click)="searchTerm.set('')">
-            <i class="pi pi-times" aria-hidden="true"></i>
-          </button>
-        }
-      </label>
-
-      <div class="toolbar-select-wrapper">
-        <p-select
-          [options]="categoryOptions()"
-          [ngModel]="selectedCategory()"
-          (ngModelChange)="selectedCategory.set($event)"
-          optionLabel="label"
-          optionValue="value"
-          appendTo="body"
-          aria-label="Filter by category"
-          styleClass="modern-category-select"
-        />
-      </div>
-    </div>
-
-    <!-- Interactive Category Filter Chips -->
-    <nav class="category-chips-bar" aria-label="Quick category filter">
-      @for (cat of categoryOptions(); track cat.value) {
-        <button
-          type="button"
-          class="category-chip"
-          [class.active]="selectedCategory() === cat.value"
-          (click)="selectedCategory.set(cat.value)"
-        >
-          <span>{{ cat.label }}</span>
-          <span class="chip-count">{{ getCategoryCount(cat.value) }}</span>
+  <div class="cx-toolbar" role="search">
+    <label class="cx-search">
+      <i class="pi pi-search" aria-hidden="true"></i>
+      <input
+        pInputText
+        type="search"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+        placeholder="Search by product name or SKU"
+        aria-label="Search products"
+        autocomplete="off"
+      />
+      @if (searchTerm()) {
+        <button type="button" class="clear-search-btn" aria-label="Clear search" (click)="searchTerm.set('')">
+          <i class="pi pi-times" aria-hidden="true"></i>
         </button>
       }
+    </label>
 
-    </nav>
-  </section>
+    <div class="toolbar-select-wrapper">
+      <p-select
+        [options]="categoryOptions()"
+        [ngModel]="selectedCategory()"
+        (ngModelChange)="selectedCategory.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        aria-label="Filter by category"
+        styleClass="modern-category-select"
+      />
+    </div>
 
-  <!-- Loading Skeleton State -->
+    <div class="sort-select">
+      <p-select
+        [options]="sortOptions"
+        [ngModel]="sortOrder()"
+        (ngModelChange)="sortOrder.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        appendTo="body"
+        ariaLabel="Sort products"
+        styleClass="modern-category-select"
+      />
+    </div>
+
+    @if (searchTerm() || selectedCategory() || sortOrder() !== 'featured') {
+      <button type="button" class="cx-btn cx-btn--ghost" (click)="clearFilters(); sortOrder.set('featured')">
+        <i class="pi pi-filter-slash" aria-hidden="true"></i> Clear filters
+      </button>
+    }
+  </div>
+
+  <nav class="cx-chips" aria-label="Quick category filter">
+    @for (cat of categoryOptions(); track cat.value) {
+      <button
+        type="button"
+        class="cx-chip"
+        [class.is-active]="selectedCategory() === cat.value"
+        [attr.aria-pressed]="selectedCategory() === cat.value"
+        (click)="selectedCategory.set(cat.value)"
+      >
+        <span>{{ cat.label }}</span>
+        <span class="cx-chip__count">{{ getCategoryCount(cat.value) }}</span>
+      </button>
+    }
+  </nav>
+
   @if (loading()) {
-    <div class="product-grid" aria-label="Loading products">
+    <div class="product-grid" aria-label="Loading products" aria-busy="true">
       @for (placeholder of loadingPlaceholders; track placeholder) {
         <div class="product-card skeleton-card">
-          <div class="skeleton-header">
-            <p-skeleton height="160px" styleClass="skeleton-art" />
-          </div>
+          <p-skeleton height="190px" borderRadius="0" />
           <div class="skeleton-body">
-            <p-skeleton width="30%" height="1rem" />
-            <p-skeleton width="80%" height="1.4rem" />
-            <p-skeleton width="50%" height="1.6rem" />
-            <p-skeleton width="100%" height="2.4rem" borderRadius="0.75rem" />
+            <p-skeleton width="70%" height="1.1rem" />
+            <p-skeleton width="45%" height="0.9rem" />
+            <p-skeleton width="40%" height="1.5rem" />
+            <p-skeleton width="100%" height="2.75rem" borderRadius="8px" />
           </div>
         </div>
       }
     </div>
   } @else if (errorMessage()) {
-    <!-- Error State -->
-    <div class="state-card error-state">
-      <span class="state-icon error-icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
-      <h3>We Couldn't Load The Catalog</h3>
+    <div class="cx-state cx-state--error" role="alert">
+      <span class="cx-state__icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+      <h3>We couldn't load the catalog</h3>
       <p>{{ errorMessage() }}</p>
-      <p-button label="Refresh Catalog" icon="pi pi-refresh" (onClick)="loadProducts()" styleClass="p-button-primary" />
+      <p-button label="Refresh catalog" icon="pi pi-refresh" (onClick)="loadProducts()" />
     </div>
   } @else if (filteredProducts().length === 0) {
-    <!-- Empty Results State -->
-    <div class="state-card empty-state">
-      <span class="state-icon"><i class="pi pi-search" aria-hidden="true"></i></span>
-      <h3>No Products Found</h3>
-      <p>We couldn't find any products matching your search criteria. Try a different keyword or reset filters.</p>
-      <p-button label="Reset Filters" icon="pi pi-filter-slash" [outlined]="true" (onClick)="clearFilters()" />
+    <div class="cx-state">
+      <span class="cx-state__icon"><i class="pi pi-search" aria-hidden="true"></i></span>
+      <h3>No products found</h3>
+      <p>We couldn't find any products matching your search. Try a different keyword or reset the filters.</p>
+      <p-button label="Reset filters" icon="pi pi-filter-slash" [outlined]="true" (onClick)="clearFilters()" />
     </div>
   } @else {
-    <!-- Products Grid -->
     <div class="product-grid">
       @for (product of filteredProducts(); track product.id) {
         <article class="product-card" [class.in-cart]="cartQuantity(product) > 0">
-          <!-- Visual Art / Thumbnail with Monogram -->
-          <div class="product-art" [class]="artClass(product)">
-            <div class="art-ambient-glow"></div>
-
-
-
+          <button type="button" class="product-art" [routerLink]="['/product', product.id]" [attr.aria-label]="'View ' + product.name" tabindex="-1">
             @if (getProductImageUrl(product); as imageUrl) {
-              <img class="product-image" [src]="imageUrl" [alt]="product.name" (error)="hideBrokenImage($event)" />
+              <img class="product-image" [src]="imageUrl" [alt]="product.name" loading="lazy" (error)="hideBrokenImage($event)" />
             } @else {
-              <div class="product-monogram">
-                <span>{{ product.name.charAt(0) }}</span>
-              </div>
+              <span class="product-monogram">{{ product.name.charAt(0) }}</span>
             }
-          </div>
+          </button>
 
-          <!-- Product Details -->
           <div class="product-info">
             <div class="product-title-row">
-              <h3 title="{{ product.name }}">{{ product.name }}</h3>
-            </div>
+              <div class="product-title-block">
+                <h3 title="{{ product.name }}">{{ product.name }}</h3>
+                <span class="product-category-text">{{ product.category || 'General' }} &middot; {{ product.sku }}</span>
+              </div>
 
-            <div class="product-meta-row">
-              <span class="product-category-text">{{ product.category || 'General' }}</span>
-
-              <!-- Stock Indicator Tag -->
               @if (isStockLoading(product)) {
                 <p-skeleton width="4.5rem" height="1.35rem" borderRadius="999px" />
               } @else if (stockError(product)) {
-                <p-tag value="Stock Checking" severity="secondary" styleClass="modern-stock-tag" />
+                <span class="cx-badge cx-badge--neutral">Stock unavailable</span>
               } @else {
                 <span
-                  class="stock-pill"
-                  [class.in-stock]="!isOutOfStock(product)"
-                  [class.low-stock]="isLowStock(product)"
-                  [class.out-of-stock]="isOutOfStock(product)"
-                >
-                  <i [class]="isOutOfStock(product) ? 'pi pi-times-circle' : 'pi pi-check-circle'"></i>
-                  <span>{{ availabilityText(product) }}</span>
-                </span>
+                  class="cx-badge"
+                  [class.cx-badge--success]="!isOutOfStock(product) && !isLowStock(product)"
+                  [class.cx-badge--warning]="isLowStock(product)"
+                  [class.cx-badge--danger]="isOutOfStock(product)"
+                >{{ availabilityText(product) }}</span>
               }
             </div>
 
@@ -143,29 +143,19 @@
               <p class="product-description">{{ product.description }}</p>
             }
 
-            <!-- Price and Subtotal Preview -->
             <div class="product-pricing">
-              <div class="price-block">
-                <span class="price-caption">Unit Price</span>
-                <strong class="price-amount">{{ product.sellPrice ?? 0 | currency:'INR':'symbol':'1.2-2' }}</strong>
-              </div>
-
+              <strong class="price-amount">{{ product.sellPrice ?? 0 | currency:'INR':'symbol':'1.2-2' }}</strong>
               @if (cartQuantity(product) > 0) {
-                <div class="cart-chip-status">
-                  <i class="pi pi-shopping-bag"></i>
-                  <span>{{ cartQuantity(product) }} in cart</span>
-                </div>
+                <span class="cart-chip-status"><i class="pi pi-shopping-cart" aria-hidden="true"></i> {{ cartQuantity(product) }} in cart</span>
               }
             </div>
           </div>
 
-          <!-- Card Action Controls -->
           <div class="product-actions">
             <button
               type="button"
-              class="action-btn quick-view-btn details-button"
+              class="cx-btn cx-btn--secondary cx-btn--block details-button"
               [routerLink]="['/product', product.id]"
-              title="View detailed product & stock breakdown"
             >
               <i class="pi pi-eye" aria-hidden="true"></i>
               <span>View product details</span>
@@ -174,7 +164,7 @@
             <div class="main-ctas">
               <button
                 type="button"
-                class="action-btn add-cart-btn"
+                class="cx-btn cx-btn--primary add-cart-btn"
                 [disabled]="(authService.isAuthenticated() && !canAddToCart(product)) || isBuying(product)"
                 (click)="addToCart(product)"
               >
@@ -184,10 +174,9 @@
 
               <button
                 type="button"
-                class="action-btn buy-now-btn"
+                class="cx-btn cx-btn--secondary buy-now-btn"
                 [disabled]="(authService.isAuthenticated() && !canPurchase(product)) || isBuying(product)"
                 (click)="requestBuyNow(product)"
-                title="1-click checkout"
               >
                 <i [class]="isBuying(product) ? 'pi pi-spin pi-spinner' : 'pi pi-bolt'" aria-hidden="true"></i>
                 <span>{{ isBuying(product) ? 'Processing…' : 'Buy now' }}</span>
@@ -272,7 +261,7 @@
         </div>
       } @else {
         <div class="modal-product-content">
-          <div class="modal-art-box" [class]="artClass(product)">
+          <div class="modal-art-box">
             @if (getProductImageUrl(product); as imageUrl) {
               <img class="modal-product-image" [src]="imageUrl" [alt]="product.name" (error)="hideBrokenImage($event)" />
             } @else {

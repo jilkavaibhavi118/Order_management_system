@@ -1,65 +1,51 @@
-<section class="cart-page">
-  <!-- Page Header -->
-  <header class="cart-header">
-    <div class="header-titles">
-      <h1>My <span class="heading-accent">Cart</span></h1>
-      <p>Review your items, update quantities, and continue to checkout.</p>
+<section class="cx-page cart-page">
+  <header class="cx-page-header">
+    <div>
+      <h1>Shopping cart</h1>
+      <p>Review your items and update quantities before checkout.</p>
     </div>
 
     @if (items().length > 0) {
-      <a class="continue-shopping" routerLink="/shop">
+      <button type="button" class="cx-btn cx-btn--ghost" routerLink="/shop">
         <i class="pi pi-arrow-left" aria-hidden="true"></i>
-        <span>Continue Shopping</span>
-      </a>
+        <span>Continue shopping</span>
+      </button>
     }
   </header>
 
   @if (items().length === 0) {
-    <!-- Empty Cart State -->
-    <div class="empty-state-box">
-      <div class="empty-icon-wrap">
-        <i class="pi pi-shopping-cart" aria-hidden="true"></i>
-      </div>
-      <h2>Your Cart is Currently Empty</h2>
-      <p>You haven't added any products to your cart yet. Explore our live catalog to discover items in stock.</p>
-      <p-button
-        label="Explore Products"
-        icon="pi pi-arrow-right"
-        iconPos="right"
-        routerLink="/shop"
-        styleClass="explore-btn"
-      />
+    <div class="cx-state">
+      <span class="cx-state__icon"><i class="pi pi-shopping-cart" aria-hidden="true"></i></span>
+      <h2>Your cart is empty</h2>
+      <p>You haven't added any products yet. Browse the catalog to find items in stock.</p>
+      <p-button label="Explore products" icon="pi pi-arrow-right" iconPos="right" routerLink="/shop" />
     </div>
   } @else {
-    <div class="cart-grid-layout">
-      <section class="cart-items-panel" aria-labelledby="cart-items-title">
-        <div class="cart-panel-heading">
-          <div class="cart-panel-title">
-            <span class="cart-panel-icon"><i class="pi pi-shopping-cart" aria-hidden="true"></i></span>
-            <h2 id="cart-items-title">Cart Items</h2>
-            <span class="cart-count">({{ items().length }})</span>
-          </div>
-          <span class="cart-quantity">{{ totalItems() }} {{ totalItems() === 1 ? 'item' : 'items' }}</span>
+    <div class="cart-layout">
+      <section class="cx-panel cart-items" aria-labelledby="cart-items-title">
+        <div class="cart-items__head">
+          <h2 id="cart-items-title">Cart items <span class="cart-items__count">({{ items().length }})</span></h2>
+          <span class="cart-items__units">{{ totalItems() }} {{ totalItems() === 1 ? 'item' : 'items' }}</span>
         </div>
 
-        <div class="cart-items-column">
+        <ul class="cart-list">
           @for (item of items(); track item.product.id) {
-            <article class="cart-item-card">
-              <div class="item-art-thumb" [class]="artClass(item.product.category)">
+            <li class="cart-row">
+              <div class="cart-row__thumb" [class]="artClass(item.product.category)">
                 @if (getProductImageUrl(item.product); as imageUrl) {
                   <img [src]="imageUrl" [alt]="item.product.name" (error)="hideBrokenImage($event)" />
                 } @else {
-                  <span>{{ item.product.name.charAt(0) }}</span>
+                  <span aria-hidden="true">{{ item.product.name.charAt(0) }}</span>
                 }
               </div>
 
-              <div class="item-details">
-                <span class="item-cat-badge">{{ item.product.category || 'General' }}</span>
+              <div class="cart-row__info">
+                <span class="cart-row__cat">{{ item.product.category || 'General' }}</span>
                 <h3 title="{{ item.product.name }}">{{ item.product.name }}</h3>
-                <span class="item-sku">SKU: {{ item.product.sku }}</span>
+                <span class="cart-row__sku">SKU {{ item.product.sku }}</span>
                 <button
                   type="button"
-                  class="remove-item-btn"
+                  class="cart-row__remove"
                   (click)="remove(item.product.id)"
                   title="Remove item from cart"
                 >
@@ -68,28 +54,24 @@
                 </button>
               </div>
 
-              <div class="item-price-box">
-                <span class="line-total-caption">Unit price</span>
-                <strong class="item-unit-price">
-                  {{ item.product.sellPrice | currency:'INR':'symbol':'1.0-0' }}
-                </strong>
+              <div class="cart-row__price">
+                <span class="cart-row__caption">Unit price</span>
+                <strong>{{ item.product.sellPrice | currency:'INR':'symbol':'1.0-0' }}</strong>
               </div>
 
-              <div class="item-stepper-control">
-                <span class="stepper-label">Qty</span>
-                <div class="stepper-buttons">
+              <div class="cart-row__qty">
+                <span class="cart-row__caption">Qty</span>
+                <div class="cx-qty">
                   <button
                     type="button"
-                    class="step-btn"
                     aria-label="Decrease quantity"
                     (click)="updateQuantity(item.product.id, item.quantity - 1)"
                   >
                     <i class="pi pi-minus" aria-hidden="true"></i>
                   </button>
-                  <span class="quantity-number">{{ item.quantity }}</span>
+                  <span aria-live="polite">{{ item.quantity }}</span>
                   <button
                     type="button"
-                    class="step-btn"
                     aria-label="Increase quantity"
                     (click)="updateQuantity(item.product.id, item.quantity + 1)"
                   >
@@ -98,59 +80,47 @@
                 </div>
               </div>
 
-              <div class="item-total-box">
-                <span class="line-total-caption">Line total</span>
-                <strong class="line-total-amount">
-                  {{ (item.product.sellPrice ?? 0) * item.quantity | currency:'INR':'symbol':'1.0-0' }}
-                </strong>
+              <div class="cart-row__total">
+                <span class="cart-row__caption">Line total</span>
+                <strong>{{ (item.product.sellPrice ?? 0) * item.quantity | currency:'INR':'symbol':'1.0-0' }}</strong>
               </div>
-            </article>
+            </li>
           }
-        </div>
+        </ul>
       </section>
 
-      <aside class="cart-summary-column">
-        <div class="summary-card">
-          <div class="summary-heading">
-            <span class="cart-panel-icon"><i class="pi pi-receipt" aria-hidden="true"></i></span>
-            <h2>Order Summary</h2>
+      <aside class="cx-panel cart-summary" aria-labelledby="cart-summary-title">
+        <h2 id="cart-summary-title">Order summary</h2>
+
+        <dl class="cart-summary__rows">
+          <div>
+            <dt>Items ({{ totalItems() }})</dt>
+            <dd>{{ totalItems() }}</dd>
           </div>
-
-          <div class="summary-rows-group">
-            <div class="summary-row">
-              <span>Items ({{ totalItems() }})</span>
-              <strong>{{ totalItems() }}</strong>
-            </div>
-            <div class="summary-row">
-              <span>Subtotal</span>
-              <strong>{{ totalAmount() | currency:'INR':'symbol':'1.0-0' }}</strong>
-            </div>
+          <div>
+            <dt>Subtotal</dt>
+            <dd>{{ totalAmount() | currency:'INR':'symbol':'1.0-0' }}</dd>
           </div>
+        </dl>
 
-          <div class="summary-divider"></div>
+        <div class="cart-summary__total">
+          <span>Total</span>
+          <strong>{{ totalAmount() | currency:'INR':'symbol':'1.0-0' }}</strong>
+        </div>
+        <p class="cart-summary__note">Final stock check before order placement.</p>
 
-          <div class="summary-total-row">
-            <div>
-              <span class="total-label">Total</span>
-              <span class="tax-note">Final stock check before order placement</span>
-            </div>
-            <strong class="grand-total-amount">{{ totalAmount() | currency:'INR':'symbol':'1.0-0' }}</strong>
-          </div>
+        <p-button
+          label="Proceed to checkout"
+          icon="pi pi-lock"
+          [fluid]="true"
+          [loading]="checkoutBusy()"
+          [disabled]="checkoutBusy()"
+          (onClick)="checkout()"
+        />
 
-          <p-button
-            label="Proceed to Checkout"
-            icon="pi pi-lock"
-            [fluid]="true"
-            [loading]="checkoutBusy()"
-            [disabled]="checkoutBusy()"
-            styleClass="place-order-button"
-            (onClick)="checkout()"
-          />
-
-          <div class="security-guarantee">
-            <span class="checkout-benefit"><i class="pi pi-box" aria-hidden="true"></i> Live stock check</span>
-            <span class="checkout-benefit"><i class="pi pi-shield" aria-hidden="true"></i> Secure checkout</span>
-          </div>
+        <div class="cart-summary__assurance">
+          <span><i class="pi pi-box" aria-hidden="true"></i> Live stock check</span>
+          <span><i class="pi pi-shield" aria-hidden="true"></i> Secure checkout</span>
         </div>
       </aside>
     </div>

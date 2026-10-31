@@ -1,0 +1,521 @@
+/* ==========================================================================
+   OrderFlow — Customer Panel design system
+   Clean white surfaces, one blue accent, light-grey borders.
+   Tokens come from :root in styles.scss. Reusable primitives use the cx- prefix.
+   ========================================================================== */
+
+:root {
+  --cx-radius: 8px;
+  --cx-radius-card: 12px;
+  --cx-radius-panel: 16px;
+  --cx-shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --cx-shadow-hover: 0 6px 18px rgba(15, 23, 42, 0.08);
+  --cx-container: 1240px;
+}
+
+/* ---------- Page shell ---------- */
+
+.customer-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  color: var(--color-body);
+  font-family: var(--font-family);
+}
+
+.cx-page {
+  width: 100%;
+  max-width: var(--cx-container);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  @media (max-width: 640px) {
+    padding: 1.25rem 1rem 2.5rem;
+  }
+}
+
+.cx-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.75rem 1rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.875rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--color-heading);
+  }
+
+  p {
+    margin: 0.375rem 0 0;
+    font-size: 0.9375rem;
+    color: var(--color-muted);
+  }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 1.5rem; }
+  }
+}
+
+/* ---------- Buttons ---------- */
+
+.cx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1.125rem;
+  border: 1px solid transparent;
+  border-radius: var(--cx-radius);
+  font: 600 0.875rem/1 var(--font-family);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+
+  &:focus-visible {
+    outline: 3px solid var(--color-primary-ring);
+    outline-offset: 2px;
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+    background: var(--color-surface-muted);
+    border-color: var(--color-border);
+    color: var(--color-muted);
+    pointer-events: none;
+  }
+
+  &--primary {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    &:hover { background: var(--color-primary-hover); border-color: var(--color-primary-hover); }
+  }
+
+  &--secondary {
+    background: var(--color-surface);
+    border-color: var(--color-border-hover);
+    color: var(--color-heading);
+    &:hover { background: var(--color-surface-muted); }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: var(--color-primary);
+    &:hover { background: var(--color-primary-light); }
+  }
+
+  &--danger {
+    background: var(--color-surface);
+    border-color: var(--color-error-border);
+    color: var(--color-error-text);
+    &:hover { background: var(--color-error-light); }
+  }
+
+  &--lg { min-height: 48px; font-size: 0.9375rem; }
+  &--block { width: 100%; }
+  &--link {
+    min-height: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+    color: var(--color-primary);
+    &:hover { color: var(--color-primary-hover); }
+  }
+}
+
+/* ---------- Forms ---------- */
+
+.cx-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+
+  label,
+  .cx-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+}
+
+.cx-input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 0.875rem;
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--cx-radius);
+  background: var(--color-surface);
+  color: var(--color-heading);
+  font: 400 0.9375rem var(--font-family);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+  &::placeholder { color: var(--color-subtle); }
+  &:hover { border-color: var(--color-subtle); }
+  &:focus {
+    outline: 0;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-ring);
+  }
+  &.is-invalid { border-color: var(--color-error); }
+}
+
+.cx-field-error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-error-text);
+}
+
+.cx-field-hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.cx-search {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 44px;
+  padding: 0 0.875rem;
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--cx-radius);
+  background: var(--color-surface);
+  color: var(--color-muted);
+
+  &:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-ring);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--color-heading);
+    font: 400 0.875rem var(--font-family);
+  }
+}
+
+.cx-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--cx-radius-card);
+  background: var(--color-surface);
+
+  .cx-search { flex: 1 1 280px; }
+}
+
+/* ---------- Surfaces ---------- */
+
+.cx-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--cx-radius-card);
+  box-shadow: var(--cx-shadow-card);
+}
+
+.cx-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--cx-radius-panel);
+}
+
+/* ---------- Chips, badges ---------- */
+
+.cx-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.cx-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 40px;
+  padding: 0 0.875rem;
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-body);
+  font: 500 0.875rem var(--font-family);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+
+  &:hover { background: var(--color-surface-muted); }
+  &:focus-visible { outline: 3px solid var(--color-primary-ring); outline-offset: 2px; }
+
+  &__count {
+    padding: 1px 7px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-muted);
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  &.is-active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    .cx-chip__count { background: rgba(255, 255, 255, 0.2); color: #fff; }
+  }
+}
+
+.cx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  background: var(--color-surface-muted);
+  color: var(--color-body);
+
+  &--success { background: var(--color-success-light); color: var(--color-success-text); }
+  &--warning { background: var(--color-warning-light); color: var(--color-warning-text); }
+  &--danger  { background: var(--color-error-light);   color: var(--color-error-text); }
+  &--info    { background: var(--color-primary-light); color: var(--color-primary-active); }
+  &--neutral { background: var(--color-surface-muted); color: var(--color-body); }
+}
+
+/* ---------- Quantity stepper ---------- */
+
+.cx-qty {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--cx-radius);
+  background: var(--color-surface);
+
+  button {
+    width: 40px;
+    height: 42px;
+    border: 0;
+    background: transparent;
+    color: var(--color-body);
+    font-size: 1.125rem;
+    cursor: pointer;
+    &:hover:not(:disabled) { color: var(--color-primary); }
+    &:disabled { color: var(--color-subtle); cursor: not-allowed; }
+    &:focus-visible { outline: 3px solid var(--color-primary-ring); outline-offset: -3px; border-radius: var(--cx-radius); }
+  }
+
+  span, input {
+    min-width: 34px;
+    text-align: center;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+}
+
+/* ---------- Tables (list style) ---------- */
+
+.cx-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--cx-radius-card);
+  background: var(--color-surface);
+}
+
+.cx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th {
+    padding: 0.75rem 1.25rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  td {
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid var(--color-surface-muted);
+    color: var(--color-body);
+  }
+
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover td { background: var(--color-bg); }
+}
+
+/* ---------- States: empty / error / loading ---------- */
+
+.cx-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--cx-radius-card);
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    font-size: 1.25rem;
+  }
+
+  &--error &__icon { background: var(--color-error-light); color: var(--color-error); }
+  h2, h3 { margin: 0.25rem 0 0; font-size: 1.125rem; color: var(--color-heading); }
+  p { margin: 0 0 0.75rem; max-width: 420px; color: var(--color-muted); font-size: 0.9375rem; }
+}
+
+.cx-skeleton {
+  border-radius: var(--cx-radius);
+  background: linear-gradient(90deg, #eef2f7 25%, #f6f8fb 37%, #eef2f7 63%);
+  background-size: 400% 100%;
+  animation: cx-shimmer 1.4s ease infinite;
+}
+
+@keyframes cx-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+.cx-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: cx-spin 0.7s linear infinite;
+}
+
+@keyframes cx-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cx-skeleton, .cx-spinner { animation: none; }
+}
+
+/* ---------- PrimeNG alignment inside the customer experience ---------- */
+
+.customer-shell,
+.cx-auth {
+  .p-inputtext,
+  .p-select,
+  .p-password-input,
+  .p-inputnumber-input {
+    border-radius: var(--cx-radius);
+    border-color: var(--color-border-hover);
+    box-shadow: none;
+  }
+
+  .p-inputtext:enabled:focus,
+  .p-select:not(.p-disabled).p-focus,
+  .p-password-input:enabled:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-ring);
+  }
+
+  .p-button {
+    border-radius: var(--cx-radius);
+    font-weight: 600;
+  }
+}
+
+.p-toast .p-toast-message {
+  border-radius: var(--cx-radius-card);
+  box-shadow: var(--cx-shadow-hover);
+}
+
+/* ---------- Account menu (rendered in an overlay, so it must be global) ---------- */
+
+.cx-account-popover.p-popover {
+  border: 1px solid var(--color-border);
+  border-radius: var(--cx-radius-card);
+  box-shadow: var(--cx-shadow-hover);
+  background: var(--color-surface);
+
+  .p-popover-content { padding: 0.5rem; }
+}
+
+.cx-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.5rem 0.75rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--color-border);
+
+    strong { display: block; font-size: 0.875rem; color: var(--color-heading); }
+    span:not(.cx-avatar) { font-size: 0.75rem; color: var(--color-muted); }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.5rem;
+    border: 0;
+    border-radius: var(--cx-radius);
+    background: transparent;
+    color: var(--color-body);
+    font: 500 0.875rem var(--font-family);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+
+    i { color: var(--color-muted); }
+    &:hover { background: var(--color-surface-muted); color: var(--color-heading); }
+    &--danger, &--danger i { color: var(--color-error-text); }
+  }
+}
+
+@import './auth';
+
+/* Avatar is used by the header and the account menu. */
+.cx-avatar {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary-active);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}

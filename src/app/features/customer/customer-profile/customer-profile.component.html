@@ -1,42 +1,31 @@
-<main class="profile-page">
-  <div class="profile-head">
+<main class="cx-page profile-page">
+  <header class="cx-page-header">
     <div>
-      <p class="eyebrow">YOUR ACCOUNT</p>
-      <h1>My Profile</h1>
+      <h1>My profile</h1>
       <p>Account information from your current sign-in.</p>
     </div>
-    <a
-      routerLink="/my-orders"
-      pButton
-      [outlined]="true"
-      label="My Orders"
-      icon="pi pi-receipt"
-    ></a>
-  </div>
+    <button type="button" routerLink="/my-orders" pButton [outlined]="true" label="My orders" icon="pi pi-receipt"></button>
+  </header>
 
-  <section class="glass profile-card">
-    <div class="avatar">{{ initials }}</div>
-    <div class="identity">
+  <section class="cx-panel profile-card" aria-label="Account details">
+    <div class="profile-card__avatar" aria-hidden="true">{{ initials }}</div>
+    <div class="profile-card__identity">
       <h2>{{ name }}</h2>
       <p>{{ email || 'Email is not available in this session' }}</p>
       <p-tag value="Customer" severity="info" />
     </div>
-    <div class="account-meta">
+    <div class="profile-card__meta">
       <span>Account ID</span>
       <strong>{{ userId || 'Not provided by login service' }}</strong>
     </div>
   </section>
 
-  <p class="note">
+  <p class="profile-note">
     Profile editing is not available because the connected API currently provides no customer
     profile update endpoint.
   </p>
 
-  <p-button
-    label="Sign out"
-    icon="pi pi-sign-out"
-    severity="danger"
-    [outlined]="true"
-    (onClick)="logout()"
-  />
+  <div>
+    <p-button label="Sign out" icon="pi pi-sign-out" severity="danger" [outlined]="true" (onClick)="logout()" />
+  </div>
 </main>
