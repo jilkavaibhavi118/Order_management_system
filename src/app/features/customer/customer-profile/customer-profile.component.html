@@ -1,0 +1,42 @@
+<main class="profile-page">
+  <div class="profile-head">
+    <div>
+      <p class="eyebrow">YOUR ACCOUNT</p>
+      <h1>My Profile</h1>
+      <p>Account information from your current sign-in.</p>
+    </div>
+    <a
+      routerLink="/my-orders"
+      pButton
+      [outlined]="true"
+      label="My Orders"
+      icon="pi pi-receipt"
+    ></a>
+  </div>
+
+  <section class="glass profile-card">
+    <div class="avatar">{{ initials }}</div>
+    <div class="identity">
+      <h2>{{ name }}</h2>
+      <p>{{ email || 'Email is not available in this session' }}</p>
+      <p-tag value="Customer" severity="info" />
+    </div>
+    <div class="account-meta">
+      <span>Account ID</span>
+      <strong>{{ userId || 'Not provided by login service' }}</strong>
+    </div>
+  </section>
+
+  <p class="note">
+    Profile editing is not available because the connected API currently provides no customer
+    profile update endpoint.
+  </p>
+
+  <p-button
+    label="Sign out"
+    icon="pi pi-sign-out"
+    severity="danger"
+    [outlined]="true"
+    (onClick)="logout()"
+  />
+</main>

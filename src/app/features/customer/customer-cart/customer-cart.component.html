@@ -1,0 +1,158 @@
+<section class="cart-page">
+  <!-- Page Header -->
+  <header class="cart-header">
+    <div class="header-titles">
+      <h1>My <span class="heading-accent">Cart</span></h1>
+      <p>Review your items, update quantities, and continue to checkout.</p>
+    </div>
+
+    @if (items().length > 0) {
+      <a class="continue-shopping" routerLink="/shop">
+        <i class="pi pi-arrow-left" aria-hidden="true"></i>
+        <span>Continue Shopping</span>
+      </a>
+    }
+  </header>
+
+  @if (items().length === 0) {
+    <!-- Empty Cart State -->
+    <div class="empty-state-box">
+      <div class="empty-icon-wrap">
+        <i class="pi pi-shopping-cart" aria-hidden="true"></i>
+      </div>
+      <h2>Your Cart is Currently Empty</h2>
+      <p>You haven't added any products to your cart yet. Explore our live catalog to discover items in stock.</p>
+      <p-button
+        label="Explore Products"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        routerLink="/shop"
+        styleClass="explore-btn"
+      />
+    </div>
+  } @else {
+    <div class="cart-grid-layout">
+      <section class="cart-items-panel" aria-labelledby="cart-items-title">
+        <div class="cart-panel-heading">
+          <div class="cart-panel-title">
+            <span class="cart-panel-icon"><i class="pi pi-shopping-cart" aria-hidden="true"></i></span>
+            <h2 id="cart-items-title">Cart Items</h2>
+            <span class="cart-count">({{ items().length }})</span>
+          </div>
+          <span class="cart-quantity">{{ totalItems() }} {{ totalItems() === 1 ? 'item' : 'items' }}</span>
+        </div>
+
+        <div class="cart-items-column">
+          @for (item of items(); track item.product.id) {
+            <article class="cart-item-card">
+              <div class="item-art-thumb" [class]="artClass(item.product.category)">
+                @if (getProductImageUrl(item.product); as imageUrl) {
+                  <img [src]="imageUrl" [alt]="item.product.name" (error)="hideBrokenImage($event)" />
+                } @else {
+                  <span>{{ item.product.name.charAt(0) }}</span>
+                }
+              </div>
+
+              <div class="item-details">
+                <span class="item-cat-badge">{{ item.product.category || 'General' }}</span>
+                <h3 title="{{ item.product.name }}">{{ item.product.name }}</h3>
+                <span class="item-sku">SKU: {{ item.product.sku }}</span>
+                <button
+                  type="button"
+                  class="remove-item-btn"
+                  (click)="remove(item.product.id)"
+                  title="Remove item from cart"
+                >
+                  <i class="pi pi-trash" aria-hidden="true"></i>
+                  <span>Remove</span>
+                </button>
+              </div>
+
+              <div class="item-price-box">
+                <span class="line-total-caption">Unit price</span>
+                <strong class="item-unit-price">
+                  {{ item.product.sellPrice | currency:'INR':'symbol':'1.0-0' }}
+                </strong>
+              </div>
+
+              <div class="item-stepper-control">
+                <span class="stepper-label">Qty</span>
+                <div class="stepper-buttons">
+                  <button
+                    type="button"
+                    class="step-btn"
+                    aria-label="Decrease quantity"
+                    (click)="updateQuantity(item.product.id, item.quantity - 1)"
+                  >
+                    <i class="pi pi-minus" aria-hidden="true"></i>
+                  </button>
+                  <span class="quantity-number">{{ item.quantity }}</span>
+                  <button
+                    type="button"
+                    class="step-btn"
+                    aria-label="Increase quantity"
+                    (click)="updateQuantity(item.product.id, item.quantity + 1)"
+                  >
+                    <i class="pi pi-plus" aria-hidden="true"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="item-total-box">
+                <span class="line-total-caption">Line total</span>
+                <strong class="line-total-amount">
+                  {{ (item.product.sellPrice ?? 0) * item.quantity | currency:'INR':'symbol':'1.0-0' }}
+                </strong>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <aside class="cart-summary-column">
+        <div class="summary-card">
+          <div class="summary-heading">
+            <span class="cart-panel-icon"><i class="pi pi-receipt" aria-hidden="true"></i></span>
+            <h2>Order Summary</h2>
+          </div>
+
+          <div class="summary-rows-group">
+            <div class="summary-row">
+              <span>Items ({{ totalItems() }})</span>
+              <strong>{{ totalItems() }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <strong>{{ totalAmount() | currency:'INR':'symbol':'1.0-0' }}</strong>
+            </div>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-total-row">
+            <div>
+              <span class="total-label">Total</span>
+              <span class="tax-note">Final stock check before order placement</span>
+            </div>
+            <strong class="grand-total-amount">{{ totalAmount() | currency:'INR':'symbol':'1.0-0' }}</strong>
+          </div>
+
+          <p-button
+            label="Proceed to Checkout"
+            icon="pi pi-lock"
+            [fluid]="true"
+            [loading]="checkoutBusy()"
+            [disabled]="checkoutBusy()"
+            styleClass="place-order-button"
+            (onClick)="checkout()"
+          />
+
+          <div class="security-guarantee">
+            <span class="checkout-benefit"><i class="pi pi-box" aria-hidden="true"></i> Live stock check</span>
+            <span class="checkout-benefit"><i class="pi pi-shield" aria-hidden="true"></i> Secure checkout</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  }
+</section>

@@ -21,6 +21,7 @@ export interface LoginResponse {
 export class AuthService {
   readonly isAuthenticatedState = signal(false);
   readonly currentUserName = signal(this.readStoredUserName());
+  readonly currentUserEmail = signal(this.readStoredUserEmail());
 
   constructor(private readonly http: HttpClient) {
     this.syncAuthState();
@@ -48,6 +49,7 @@ export class AuthService {
 
           preferredStorage.setItem('customer-token', token);
           preferredStorage.setItem('customer-user-name', userName);
+          preferredStorage.setItem('customer-user-email', email);
           otherStorage.removeItem('customer-token');
           if (userId) {
             preferredStorage.setItem('customer-user-id', userId);
@@ -55,10 +57,13 @@ export class AuthService {
             preferredStorage.removeItem('customer-user-id');
           }
           otherStorage.removeItem('customer-user-name');
+          otherStorage.removeItem('customer-user-email');
           otherStorage.removeItem('customer-user-id');
           this.currentUserName.set(userName);
+          this.currentUserEmail.set(email);
         } else {
           this.currentUserName.set(response.data?.name ?? response.name ?? email);
+          this.currentUserEmail.set(email);
         }
         this.syncAuthState();
       })
@@ -73,8 +78,11 @@ export class AuthService {
       window.sessionStorage.removeItem('customer-user-id');
       window.localStorage.removeItem('customer-user-name');
       window.sessionStorage.removeItem('customer-user-name');
+      window.localStorage.removeItem('customer-user-email');
+      window.sessionStorage.removeItem('customer-user-email');
     }
     this.currentUserName.set('');
+    this.currentUserEmail.set('');
     this.syncAuthState();
   }
 
@@ -134,6 +142,12 @@ export class AuthService {
     return window.sessionStorage.getItem('customer-user-name')
       ?? window.localStorage.getItem('customer-user-name')
       ?? '';
+  }
+
+  private readStoredUserEmail(): string {
+    if (typeof window === 'undefined') return '';
+    return window.sessionStorage.getItem('customer-user-email')
+      ?? window.localStorage.getItem('customer-user-email') ?? '';
   }
 
   private getUserIdFromToken(token: string): string | null {

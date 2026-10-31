@@ -1,9 +1,33 @@
 import { Injectable, signal } from '@angular/core';
 import { CartItem, Product } from '../models/product.model';
 
+const CART_STORAGE_KEY = 'customer-cart';
+
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  readonly cartItems = signal<CartItem[]>([]);
+  readonly cartItems = signal<CartItem[]>(this.readCart());
+
+  private readCart(): CartItem[] {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved: unknown = JSON.parse(window.localStorage.getItem(CART_STORAGE_KEY) ?? '[]');
+      if (!Array.isArray(saved)) return [];
+      return saved.filter((item): item is CartItem =>
+        !!item && typeof item === 'object' &&
+        typeof item.product?.id === 'string' &&
+        Number.isFinite(item.quantity) && item.quantity > 0
+      );
+    } catch {
+      return [];
+    }
+  }
+
+  private save(items: CartItem[]): void {
+    this.cartItems.set(items);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    }
+  }
 
   addToCart(product: Product, maxQuantity = Number.POSITIVE_INFINITY): boolean {
     const items = this.cartItems();
@@ -13,7 +37,7 @@ export class CartService {
     }
 
     if (existing) {
-      this.cartItems.set(
+      this.save(
         items.map((item) =>
           item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         )
@@ -21,7 +45,7 @@ export class CartService {
       return true;
     }
 
-    this.cartItems.set([...items, { product, quantity: 1 }]);
+    this.save([...items, { product, quantity: 1 }]);
     return true;
   }
 
@@ -30,7 +54,7 @@ export class CartService {
   }
 
   updateQuantity(productId: string, quantity: number): void {
-    this.cartItems.set(
+    this.save(
       this.cartItems()
         .map((item) =>
           item.product.id === productId ? { ...item, quantity: Math.max(0, quantity) } : item
@@ -40,11 +64,11 @@ export class CartService {
   }
 
   removeFromCart(productId: string): void {
-    this.cartItems.set(this.cartItems().filter((item) => item.product.id !== productId));
+    this.save(this.cartItems().filter((item) => item.product.id !== productId));
   }
 
   clear(): void {
-    this.cartItems.set([]);
+    this.save([]);
   }
 
   get totalItems(): number {

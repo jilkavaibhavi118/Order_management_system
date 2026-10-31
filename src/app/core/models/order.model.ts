@@ -41,3 +41,9 @@ export interface OrderRequest {
 export interface OrderStatusRequest {
   status: string;
 }
+
+export interface CategoryOption {
+  label: string;
+  value: string;
+}
+

@@ -13,9 +13,14 @@ export interface LoginResponse {
   success?: boolean;
   message?: string;
   errors?: string[];
-  data: {
-    token: string;
-    userId: string;
+  token?: string;
+  accessToken?: string;
+  userId?: string;
+  name?: string;
+  data?: {
+    token?: string;
+    accessToken?: string;
+    userId?: string;
     name?: string;
     email?: string;
     role?: string;
@@ -26,6 +31,7 @@ export interface RegisterCredentials {
   fullName: string;
   email: string;
   password: string;
+  confirmPassword: string;
 }
 
 export interface RegisterRequest {
